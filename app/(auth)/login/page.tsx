@@ -1,14 +1,54 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "motion/react";
+import LoginForm from "@/components/forms/LoginForm";
+import { useActionState } from "react";
+import { login } from "@/actions/login";
+import { signIn } from "next-auth/react";
+import { useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const { status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/dashboard");
+    }
+  }, [status, router]);
+
+  const [state] = useActionState(login, {
+    success: false,
+    errors: {},
+    formValues: {},
+    data: undefined,
+  });
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const result = await login(state, form);
+
+    if (result.success && result.data) {
+      await signIn("credentials", {
+        email: result.data.email,
+        password: result.data.password,
+        redirect: true,
+        callbackUrl: "/dashboard",
+      });
+    }
+  }
+
+  if (status === "loading") {
+    return <p>Loading...</p>;
+  }
+
   return (
-    <main className="h-[calc(100vh-5rem)] bg-white grid md:grid-cols-2">
+    <main className="min-h-screen bg-white grid md:grid-cols-2">
       {/* Left Panel */}
       <motion.div
         initial={{ opacity: 0, x: -50 }}
@@ -40,46 +80,21 @@ export default function LoginPage() {
         <div className="w-full max-w-md mx-auto">
           <h2 className="text-3xl font-bold text-gray-800 mb-6">Log In</h2>
 
-          <form className="space-y-5">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                required
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Password
-              </label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                required
-              />
-            </div>
-
-            <Button type="submit" className="w-full text-lg">
-              Log In
-            </Button>
-          </form>
+          <LoginForm state={state} handleSubmit={handleSubmit} />
 
           <p className="mt-6 text-center text-sm text-gray-600">
             Don’t have an account?{" "}
             <Link href="/signup" className="text-green-600 hover:underline">
               Get Started
+            </Link>
+          </p>
+
+          <p className="mt-4 text-center text-sm text-gray-600">
+            <Link
+              href="/"
+              className="inline-block text-gray-500 hover:text-green-600 hover:underline transition"
+            >
+              ← Back to Home
             </Link>
           </p>
         </div>
