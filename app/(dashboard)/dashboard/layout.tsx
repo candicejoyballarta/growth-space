@@ -7,12 +7,12 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[250px_1fr] bg-gray-50">
+    <div className="bg-gray-50 min-h-screen">
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main Content */}
-      <main className="p-6">{children}</main>
+      <main className="md:ml-[250px] p-6">{children}</main>
     </div>
   );
 }

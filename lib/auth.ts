@@ -3,8 +3,9 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { connectToDB } from "@/lib/mongoose";
 import { User } from "@/models/User";
 import bcrypt from "bcryptjs";
+import NextAuth, { NextAuthOptions } from "next-auth";
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -48,3 +49,5 @@ export const authOptions = {
     signIn: "/login", // custom login page
   },
 };
+
+export default NextAuth(authOptions);
