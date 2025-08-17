@@ -5,11 +5,11 @@ import { useEffect, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
-interface WysiwygEditorProps {
+type WysiwygEditorProps = React.InputHTMLAttributes<HTMLInputElement> & {
   content: string;
   setContent: (html: string) => void;
   placeholder?: string;
-}
+};
 
 const WysiwygEditor = ({
   content,
@@ -71,6 +71,7 @@ const WysiwygEditor = ({
 
       {/* Editor Content */}
       <EditorContent editor={editor} className="w-full" />
+      <input type="hidden" name="content" value={content} />
     </div>
   );
 };

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { useAuth } from "../providers/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";

@@ -2,11 +2,11 @@
 import { useState } from "react";
 import { Input } from "./input";
 
-interface TagInputProps {
+type TagInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   tags: string[];
   setTags: (tags: string[]) => void;
   placeholder?: string;
-}
+};
 
 const TagInput = ({ tags, setTags, placeholder }: TagInputProps) => {
   const [inputValue, setInputValue] = useState("");

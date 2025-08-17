@@ -8,6 +8,7 @@ import {
   ReactNode,
 } from "react";
 import { useSession } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
 
 type UserData = {
   _id: string;
@@ -58,6 +59,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     await fetchUser();
   };
+
+  // useEffect(() => {
+  //   if (status === "loading") return;
+
+  //   if (status === "unauthenticated" && pathname === "/") {
+  //     router.replace("/dashboard");
+  //   }
+  // }, [status, pathname, router]);
 
   useEffect(() => {
     if (status !== "loading") {

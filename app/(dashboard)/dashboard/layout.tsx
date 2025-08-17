@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Toaster } from "react-hot-toast";
 import Sidebar from "@/components/shared/Sidebar";
 
 interface DashboardLayoutProps {
@@ -13,6 +14,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Main Content */}
       <main className="md:ml-[250px] p-6">{children}</main>
+
+      {/* Toaster */}
+      <Toaster />
     </div>
   );
 }

@@ -1,8 +1,9 @@
 import Image from "next/image";
 import React from "react";
 import { Card, CardContent, CardHeader } from "./card";
+import { formatDate, html } from "@/lib/helpers";
 
-interface PostCardProps {
+export interface PostCardProps {
   post: {
     user: {
       name: string;
@@ -31,7 +32,9 @@ const PostCard = ({ post }: PostCardProps) => {
         />
         <div>
           <p className="font-medium leading-tight">{post.user.name}</p>
-          <p className="text-xs text-muted-foreground">{post.timestamp}</p>
+          <p className="text-xs text-muted-foreground">
+            {formatDate(post.timestamp)}
+          </p>
         </div>
       </CardHeader>
 
@@ -43,9 +46,9 @@ const PostCard = ({ post }: PostCardProps) => {
         )}
 
         {/* Main Text */}
-        <p className="text-sm text-foreground whitespace-pre-wrap">
-          {post.content}
-        </p>
+        <div className="text-sm text-foreground whitespace-pre-wrap">
+          {html(post.content)}
+        </div>
 
         {/* Tags */}
         {post.tags && post.tags?.length > 0 && (

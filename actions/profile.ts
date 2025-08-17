@@ -3,7 +3,7 @@
 import { profileSchema, ProfileFormValues } from "@/lib/validators/profile";
 import { connectToDB } from "@/lib/mongoose";
 import { User } from "@/models/User";
-import { getServerSession } from "next-auth";
+import { getServerSession, Session } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { uploadImage } from "@/lib/cloudinary";
 import { revalidatePath } from "next/cache";
@@ -13,6 +13,7 @@ export interface EditProfileState {
   message?: string;
   errors: Partial<Record<keyof ProfileFormValues, string>>;
   formValues?: Partial<ProfileFormValues>;
+  updatedSession?: Session;
 }
 
 export async function editProfile(
@@ -38,7 +39,6 @@ export async function editProfile(
         formValues: {
           name: formData.get("name")?.toString() ?? "",
           bio: formData.get("bio")?.toString() ?? "",
-          email: formData.get("email")?.toString() ?? "",
         },
       };
     }
@@ -46,10 +46,9 @@ export async function editProfile(
 
   // Prepare and validate data
   const raw = {
-    image: imageUrl || session.user.image || "",
+    image: imageUrl || session.user.image,
     name: formData.get("name")?.toString() ?? "",
     bio: formData.get("bio")?.toString() ?? "",
-    email: formData.get("email")?.toString() ?? "",
   };
 
   const parsed = profileSchema.safeParse(raw);
@@ -66,51 +65,35 @@ export async function editProfile(
       success: false,
       message: "Please correct the errors below:",
       errors,
-      formValues: { name: raw.name, bio: raw.bio, email: raw.email },
+      formValues: { name: raw.name, bio: raw.bio },
     };
   }
 
-  const { name, bio, email, image } = parsed.data;
+  const { name, bio, image } = parsed.data;
 
   // Save changes
   try {
     await connectToDB();
     await User.findOneAndUpdate(
       { email: session.user.email },
-      { name, bio, email, image },
+      { name, bio, image },
       { new: true }
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { update } = (await import("next-auth/react")) as any;
-    if (typeof update === "function") {
-      // Update the session payload
-      await update({
-        ...session,
-        user: {
-          ...session.user,
-          name,
-          bio,
-          email,
-          image,
-        },
-      });
-    }
-
-    revalidatePath("/profile");
+    revalidatePath("/dashboard");
 
     return {
       success: true,
       message: "Profile updated successfully.",
       errors: {},
-      formValues: { name, email, bio, image },
+      formValues: { name, bio, image },
     };
   } catch (error) {
     return {
       success: false,
       message: "Failed to update profile.",
       errors: {},
-      formValues: { name, email, bio, image },
+      formValues: { name, bio, image },
     };
   }
 }

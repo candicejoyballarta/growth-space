@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EditProfileState } from "@/actions/profile";
 import Image from "next/image";
-import { Session } from "next-auth";
 import { Loader2, Pencil } from "lucide-react";
 import { useAuth } from "../providers/AuthProvider";
 
@@ -67,9 +66,7 @@ export default function ProfileForm({
           <h2 className="text-2xl font-semibold">
             {state.formValues?.name || user?.name}
           </h2>
-          <p className="text-gray-600">
-            {state.formValues?.email || user?.email}
-          </p>
+          <p className="text-gray-600">{user?.email}</p>
         </div>
       </div>
 
@@ -92,20 +89,6 @@ export default function ProfileForm({
           placeholder="Tell us about yourself"
           name="bio"
           defaultValue={state.formValues?.bio || user?.bio || ""}
-        />
-      </div>
-
-      {/* Separator */}
-      <div className="border-t border-gray-300 my-4" />
-
-      {/* Email */}
-      <div>
-        <label className="block text-sm font-medium mb-1">Email</label>
-        <Input
-          type="email"
-          placeholder="Enter your email"
-          name="email"
-          defaultValue={state.formValues?.email || user?.email || ""}
         />
       </div>
 
