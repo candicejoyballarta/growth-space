@@ -4,16 +4,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "motion/react";
 import LoginForm from "@/components/forms/LoginForm";
-import { useActionState } from "react";
-import { login } from "@/actions/login";
-import { signIn } from "next-auth/react";
-import { useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
+  const { login } = useAuth();
   const { status } = useSession();
   const router = useRouter();
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -21,25 +21,16 @@ export default function LoginPage() {
     }
   }, [status, router]);
 
-  const [state] = useActionState(login, {
-    success: false,
-    errors: {},
-    formValues: {},
-    data: undefined,
-  });
-
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    const result = await login(state, form);
+    const email = form.get("email") as string;
+    const password = form.get("password") as string;
 
-    if (result.success && result.data) {
-      await signIn("credentials", {
-        email: result.data.email,
-        password: result.data.password,
-        redirect: true,
-        callbackUrl: "/dashboard",
-      });
+    const res = await login(email, password);
+
+    if (res.error) {
+      setFormError(res.error); // show form-level error
     }
   }
 
@@ -80,7 +71,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md mx-auto">
           <h2 className="text-3xl font-bold text-gray-800 mb-6">Log In</h2>
 
-          <LoginForm state={state} handleSubmit={handleSubmit} />
+          <LoginForm formError={formError} handleSubmit={handleSubmit} />
 
           <p className="mt-6 text-center text-sm text-gray-600">
             Don’t have an account?{" "}

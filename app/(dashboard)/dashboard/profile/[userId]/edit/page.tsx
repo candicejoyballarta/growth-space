@@ -17,22 +17,33 @@ export default function ProfilePage() {
     errors: {},
     formValues: {},
   });
-  const [preview, setPreview] = useState<string>();
+  const [previewAvatar, setPreviewAvatar] = useState<string>();
+  const [previewCover, setPreviewCover] = useState<string>();
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setPreviewAvatar(URL.createObjectURL(file));
+  };
+
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const objectUrl = URL.createObjectURL(file);
-      setPreview(objectUrl);
+      const previewUrl = URL.createObjectURL(file);
+      setPreviewCover(previewUrl);
     }
   };
 
-  // Cleanup preview URL to avoid memory leaks
   useEffect(() => {
     return () => {
-      if (preview) URL.revokeObjectURL(preview);
+      if (previewAvatar) URL.revokeObjectURL(previewAvatar);
     };
-  }, [preview]);
+  }, [previewAvatar]);
+
+  useEffect(() => {
+    return () => {
+      if (previewCover) URL.revokeObjectURL(previewCover);
+    };
+  }, [previewCover]);
 
   useEffect(() => {
     if (state.success) {
@@ -63,8 +74,10 @@ export default function ProfilePage() {
 
       <ProfileForm
         state={state}
-        preview={preview}
-        handleImageChange={handleImageChange}
+        preview={previewAvatar}
+        handleImageChange={handleAvatarChange}
+        coverPreview={previewCover}
+        handleCoverChange={handleCoverChange}
         action={formAction}
       />
     </div>

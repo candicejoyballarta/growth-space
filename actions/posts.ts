@@ -1,10 +1,10 @@
 "use server";
 
+import { mapPost } from "@/lib/helpers";
 import { connectToDB } from "@/lib/mongoose";
 import { postSchema, PostFormValues } from "@/lib/validators/posts";
 import { Post } from "@/models/Post";
 import { User } from "@/models/User";
-import { Types } from "mongoose";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 
@@ -24,7 +24,7 @@ export async function createPost(
     title: formData.get("title")?.toString() ?? "",
     content: formData.get("content")?.toString() ?? "",
     tags: formData.get("tags")
-      ? (formData.get("tags") as string).split(",").map((tag) => tag.trim())
+      ? JSON.parse(formData.get("tags") as string)
       : [],
   };
 
@@ -195,23 +195,59 @@ export async function getAllPosts() {
   await connectToDB();
 
   const posts = await Post.find({})
-    .populate("author", "name image") // only return name and image
-    .populate("tags", "name") // if tags are ObjectIds, not strings
-    .sort({ createdAt: -1 }) // newest first
-    .lean(); // return plain JS objects
+    .populate("author", "name image")
+    .sort({ createdAt: -1 })
+    .lean();
 
-  return posts.map((post) => ({
-    user: {
-      name: post.author?.name ?? "Unknown",
-      image: post.author?.image ?? "/profile.jpg",
-    },
-    title: post.title,
-    likes: post.likes?.length ?? 0,
-    comments: post.comments?.length ?? 0, // only works if you have comments array
-    content: post.content,
-    tags: Array.isArray(post.tags)
-      ? post.tags.map((tag, i) => (typeof tag === "string" ? tag : tag.name))
-      : [],
-    timestamp: post.createdAt?.toISOString() ?? "",
-  }));
+  return posts.map(mapPost);
+}
+
+export async function getUserPosts(userId: string) {
+  await connectToDB();
+
+  const posts = await Post.find({ author: userId })
+    .populate("author", "name image")
+    .sort({ createdAt: -1 }) // newest first
+    .lean();
+
+  return posts.map(mapPost);
+}
+
+export async function getTrendingPosts() {
+  await connectToDB();
+
+  const posts = await Post.find({})
+    .populate("author", "name image")
+    .sort({ likes: -1, comments: -1 })
+    .lean();
+
+  return posts.map(mapPost);
+}
+
+export async function getPostsByTag(tag: string) {
+  await connectToDB();
+
+  const posts = await Post.find({ tags: tag })
+    .populate("author", "name image")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  return posts.map(mapPost);
+}
+
+export async function getFollowingPosts(loggedInUserId: string) {
+  await connectToDB();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const user = (await User.findById(loggedInUserId).lean()) as any;
+  const followingUserIds = user?.following || [];
+
+  const posts = await Post.find({
+    author: { $in: [loggedInUserId, ...followingUserIds] },
+  })
+    .populate("author", "name image")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  return posts.map(mapPost);
 }

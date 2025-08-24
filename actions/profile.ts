@@ -44,9 +44,35 @@ export async function editProfile(
     }
   }
 
+  // Handle cover image upload
+  let coverImageUrl: string | undefined;
+  const rawCover = formData.get("coverImage") as File | null;
+  if (rawCover && rawCover.size > 0) {
+    try {
+      coverImageUrl = await uploadImage(rawCover);
+    } catch {
+      return {
+        success: false,
+        message: "Cover image upload failed.",
+        errors: { coverImage: "Failed to upload cover image" },
+        formValues: {
+          name: formData.get("name")?.toString() ?? "",
+          bio: formData.get("bio")?.toString() ?? "",
+          image: imageUrl,
+        },
+      };
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const currentUser: any = await User.findOne({
+    email: session.user.email,
+  }).lean();
+
   // Prepare and validate data
   const raw = {
-    image: imageUrl || session.user.image,
+    image: imageUrl || currentUser?.image,
+    coverImage: coverImageUrl || currentUser?.coverImage,
     name: formData.get("name")?.toString() ?? "",
     bio: formData.get("bio")?.toString() ?? "",
   };
@@ -69,14 +95,14 @@ export async function editProfile(
     };
   }
 
-  const { name, bio, image } = parsed.data;
+  const { name, bio, image, coverImage } = parsed.data;
 
   // Save changes
   try {
     await connectToDB();
     await User.findOneAndUpdate(
       { email: session.user.email },
-      { name, bio, image },
+      { name, bio, image, coverImage },
       { new: true }
     );
 
@@ -86,14 +112,14 @@ export async function editProfile(
       success: true,
       message: "Profile updated successfully.",
       errors: {},
-      formValues: { name, bio, image },
+      formValues: { name, bio, image, coverImage },
     };
   } catch (error) {
     return {
       success: false,
       message: "Failed to update profile.",
       errors: {},
-      formValues: { name, bio, image },
+      formValues: { name, bio, image, coverImage },
     };
   }
 }

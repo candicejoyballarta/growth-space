@@ -14,8 +14,9 @@ import {
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
-import { cn } from "@/lib/utils"; // optional helper from shadcn utils (or remove/copy a simple cn)
-import { useAuth } from "@/components/providers/AuthProvider";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import { useGetUser } from "@/hooks/useGetUser";
 
 type NavItem = {
   href: string;
@@ -23,33 +24,38 @@ type NavItem = {
   icon: React.ReactNode;
 };
 
-const NAV: NavItem[] = [
-  { href: "/dashboard", label: "Overview", icon: <Home className="h-5 w-5" /> },
-  {
-    href: "/dashboard/profile",
-    label: "Profile",
-    icon: <User className="h-5 w-5" />,
-  },
-  {
-    href: "/dashboard/insights",
-    label: "Insights",
-    icon: <BarChart2 className="h-5 w-5" />,
-  },
-  {
-    href: "/dashboard/settings",
-    label: "Settings",
-    icon: <Settings className="h-5 w-5" />,
-  },
-];
-
 export default function Sidebar() {
   const pathname = usePathname() ?? "/";
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
+  const { profile } = useGetUser(user?.email);
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: "/" });
   };
+
+  const NAV: NavItem[] = [
+    {
+      href: "/dashboard",
+      label: "Overview",
+      icon: <Home className="h-5 w-5" />,
+    },
+    {
+      href: `/dashboard/profile/${user?.id}`,
+      label: "Profile",
+      icon: <User className="h-5 w-5" />,
+    },
+    {
+      href: "/dashboard/insights",
+      label: "Insights",
+      icon: <BarChart2 className="h-5 w-5" />,
+    },
+    {
+      href: "/dashboard/settings",
+      label: "Settings",
+      icon: <Settings className="h-5 w-5" />,
+    },
+  ];
 
   return (
     <>
@@ -125,32 +131,49 @@ export default function Sidebar() {
           </nav>
 
           {/* User Info */}
-          <div className="mt-6 flex items-center gap-3 border-t border-white/10 pt-4 px-2">
-            <div className="h-10 w-10 flex-none rounded-full overflow-hidden bg-green-500 flex items-center justify-center text-sm font-medium text-white">
-              {user?.image && !user.image.includes("/profile.jpg") ? (
-                <Image
-                  src={user.image}
-                  alt={user.name || "User"}
-                  width={40}
-                  height={40}
-                  className="object-cover"
-                />
-              ) : (
-                <span>{user?.name?.[0]?.toUpperCase() || "U"}</span>
-              )}
+
+          {profile ? (
+            <div className="mt-6 flex items-center gap-3 border-t border-white/10 pt-4 px-2">
+              <div className="h-10 w-10 flex-none rounded-full overflow-hidden bg-green-500 flex items-center justify-center text-sm font-medium text-white">
+                {profile?.image && !profile.image.includes("/profile.jpg") ? (
+                  <Image
+                    src={profile.image}
+                    alt={profile.name || "User"}
+                    width={40}
+                    height={40}
+                    className="object-cover"
+                  />
+                ) : (
+                  <span>{user?.name?.[0]?.toUpperCase() || "U"}</span>
+                )}
+              </div>
+              <div className="flex-1">
+                <div className="text-sm font-semibold">{user?.name}</div>
+                <div className="text-xs text-green-100/80">{user?.email}</div>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="rounded-md bg-white/10 p-2 hover:bg-white/20"
+                title="Sign out"
+              >
+                <LogOut className="h-4 w-4 text-white" />
+              </button>
             </div>
-            <div className="flex-1">
-              <div className="text-sm font-semibold">{user?.name}</div>
-              <div className="text-xs text-green-100/80">{user?.email}</div>
+          ) : (
+            <div className="mt-6 flex items-center gap-3 border-t border-white/10 pt-4 px-2 animate-pulse">
+              {/* Avatar placeholder */}
+              <div className="h-10 w-10 flex-none rounded-full bg-white/20"></div>
+
+              {/* Name & Email placeholder */}
+              <div className="flex-1 space-y-2">
+                <div className="h-3 w-24 rounded bg-white/20"></div>
+                <div className="h-2 w-36 rounded bg-white/10"></div>
+              </div>
+
+              {/* Button placeholder */}
+              <div className="h-8 w-8 rounded-md bg-white/10"></div>
             </div>
-            <button
-              onClick={handleSignOut}
-              className="rounded-md bg-white/10 p-2 hover:bg-white/20"
-              title="Sign out"
-            >
-              <LogOut className="h-4 w-4 text-white" />
-            </button>
-          </div>
+          )}
         </div>
       </aside>
 

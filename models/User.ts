@@ -1,14 +1,15 @@
-import mongoose, { Schema, Document, Types } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IUser extends Document {
   image?: string;
   name: string;
   email: string;
   bio?: string;
+  coverImage?: string;
   role?: "user" | "admin";
   password: string;
-  following?: Types.ObjectId[];
-  followers?: Types.ObjectId[];
+  following?: [{ type: Schema.Types.ObjectId; ref: "User" }];
+  followers?: [{ type: Schema.Types.ObjectId; ref: "User" }];
   createdAt: Date;
 }
 
@@ -19,6 +20,7 @@ const UserSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     bio: { type: String, default: "" },
+    coverImage: { type: String, default: "default-cover.jpg" },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     following: [{ type: Schema.Types.ObjectId, ref: "User" }],
     followers: [{ type: Schema.Types.ObjectId, ref: "User" }],

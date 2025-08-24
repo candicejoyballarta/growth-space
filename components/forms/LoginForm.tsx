@@ -1,13 +1,12 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { LoginState } from "@/actions/login";
 
 type LoginFormProps = {
-  state: LoginState;
+  formError: string | null;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
 };
 
-export default function LoginForm({ state, handleSubmit }: LoginFormProps) {
+export default function LoginForm({ formError, handleSubmit }: LoginFormProps) {
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
       <div>
@@ -22,7 +21,6 @@ export default function LoginForm({ state, handleSubmit }: LoginFormProps) {
           type="email"
           name="email"
           placeholder="you@example.com"
-          defaultValue={state.formValues?.email}
         />
       </div>
 
@@ -41,7 +39,7 @@ export default function LoginForm({ state, handleSubmit }: LoginFormProps) {
         />
       </div>
 
-      {state.message && !state.success && (
+      {/* {state.message && !state.success && (
         <div className="mb-4 rounded-md bg-red-50 border border-red-300 p-3">
           <p className="text-sm font-medium text-red-700 mb-2">
             {state.message}
@@ -51,6 +49,12 @@ export default function LoginForm({ state, handleSubmit }: LoginFormProps) {
               <li key={i}>{msg}</li>
             ))}
           </ul>
+        </div>
+      )} */}
+
+      {formError && (
+        <div className="mb-4 rounded-md bg-red-50 border border-red-300 p-3">
+          <p className="text-sm font-medium text-red-700 mb-2">{formError}</p>
         </div>
       )}
 

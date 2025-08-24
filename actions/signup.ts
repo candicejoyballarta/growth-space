@@ -60,7 +60,8 @@ export async function signup(
       name,
       email,
       password: hashedPassword,
-      avatar: "/profile.jpg", // Default avatar
+      avatar: "/profile.jpg",
+      coverImage: "/default-cover.jpg",
     });
 
     return {

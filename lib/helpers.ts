@@ -72,3 +72,25 @@ export function formatDate(date: string | Date): string {
     year: "numeric",
   });
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function mapPost(post: any) {
+  return {
+    user: {
+      name: post.author?.name ?? "Unknown",
+      image: post.author?.image ?? "/profile.jpg",
+    },
+    id: post._id.toString(),
+    title: post.title,
+    likes: Array.isArray(post.likes) ? post.likes.length : 0,
+    comments: Array.isArray(post.comments) ? post.comments.length : 0,
+    content: post.content,
+    tags: Array.isArray(post.tags)
+      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        post.tags.map((tag: any) =>
+          typeof tag === "string" ? tag : tag?.name ?? ""
+        )
+      : [],
+    timestamp: post.createdAt?.toISOString() ?? "",
+  };
+}

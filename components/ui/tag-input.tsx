@@ -28,6 +28,7 @@ const TagInput = ({ tags, setTags, placeholder }: TagInputProps) => {
 
   return (
     <div className="flex flex-col gap-2">
+      <input type="hidden" name="tags" value={JSON.stringify(tags)} />
       <Input
         type="text"
         placeholder={placeholder || "Add a tag"}

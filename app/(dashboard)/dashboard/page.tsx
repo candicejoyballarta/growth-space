@@ -1,14 +1,23 @@
-import { getAllPosts } from "@/actions/posts";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { getFollowingPosts, getTrendingPosts } from "@/actions/posts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import SocialFeed from "@/components/ui/social-feed";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import PeopleYouMayKnowCard from "@/components/widgets/PeopleYouMayKnowCard";
 import PopularTopics from "@/components/widgets/PopularTopics";
 import ProfileCard from "@/components/widgets/ProfileCard";
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
 
 export default async function DashboardPage() {
-  const latest = await getAllPosts();
+  const session = await getServerSession(authOptions);
+  const loggedInUserId = session?.user?.id;
+
+  // Fetch posts
+  const latest = loggedInUserId
+    ? await getFollowingPosts(loggedInUserId) // only posts from following + user
+    : [];
+  const trending = await getTrendingPosts();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6">
       {/* Left Column - Profile */}
@@ -31,33 +40,14 @@ export default async function DashboardPage() {
           </TabsContent>
 
           <TabsContent value="trending" className="space-y-4">
-            <SocialFeed posts={latest} />
+            <SocialFeed posts={trending} />
           </TabsContent>
         </Tabs>
       </div>
 
       {/* Right Column */}
       <div className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>People You May Know</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {["Sam Patel", "Linda Wong", "Carlos Ruiz"].map((name, i) => (
-              <div key={i} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Avatar className="w-8 h-8">
-                    <AvatarFallback>{name[0]}</AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm">{name}</span>
-                </div>
-                <Button size="sm" variant="secondary">
-                  Follow
-                </Button>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+        <PeopleYouMayKnowCard />
 
         <Card>
           <CardHeader>
