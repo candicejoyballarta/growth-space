@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "./card";
 import { formatDate, html } from "@/lib/helpers";
 import { Heart, MessageCircle } from "lucide-react";
@@ -17,30 +17,93 @@ export interface PostCardProps {
     id: string;
     title?: string;
     likes?: number;
-    comments?: number;
+    liked: boolean;
     content: string;
     tags?: string[];
     timestamp: string;
   };
 }
 
+type CommentType = {
+  id: string;
+  content: string;
+  author: {
+    id?: string;
+    name: string;
+    image: string;
+  };
+  createdAt?: string;
+};
+
 const PostCard = ({ post }: PostCardProps) => {
   const [likes, setLikes] = useState(post.likes || 0);
-  const [liked, setLiked] = useState(false);
-  const [comments, setComments] = useState<string[]>([]);
+  const [liked, setLiked] = useState(post.liked || false);
+  const [comments, setComments] = useState<CommentType[]>([]);
   const [commentInput, setCommentInput] = useState("");
   const [showComments, setShowComments] = useState(false);
 
-  const toggleLike = () => {
-    setLiked(!liked);
+  console.log(post);
+
+  useEffect(() => {
+    fetch(`/api/posts/${post.id}/comments`)
+      .then((res) => res.json())
+      .then((data) => setComments(data))
+      .catch((err) => console.error("Error fetching comments:", err));
+  }, [post.id]);
+
+  // Toggle like with optimistic UI
+  const toggleLike = async () => {
+    // optimistic
+    setLiked((prev) => !prev);
     setLikes((prev) => (liked ? prev - 1 : prev + 1));
+
+    try {
+      const res = await fetch(`/api/posts/${post.id}/like`, { method: "POST" });
+      const data = await res.json();
+
+      if (!data.success) throw new Error("Failed to like");
+
+      // ✅ trust server response
+      setLikes(data.likesCount);
+      setLiked(data.liked);
+    } catch (err) {
+      console.error(err);
+      // rollback
+      setLiked((prev) => !prev);
+      setLikes((prev) => (liked ? prev + 1 : prev - 1));
+    }
   };
 
-  const handleCommentSubmit = (e: React.FormEvent) => {
+  // Submit comment with optimistic update
+  const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (commentInput.trim()) {
-      setComments([...comments, commentInput]);
-      setCommentInput("");
+    if (!commentInput.trim()) return;
+
+    const optimisticComment: CommentType = {
+      id: `temp-${Date.now()}`,
+      content: commentInput,
+      author: { name: "You", image: "/profile.jpg" },
+    };
+
+    setComments((prev) => [optimisticComment, ...prev]);
+    setCommentInput("");
+
+    const res = await fetch(`/api/posts/${post.id}/comments`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: optimisticComment.content }),
+    });
+
+    const data = await res.json();
+    if (!data.success) {
+      // rollback
+      setComments((prev) => prev.filter((c) => c.id !== optimisticComment.id));
+    } else {
+      const newComment: CommentType = data.comment;
+      setComments((prev) => [
+        newComment,
+        ...prev.filter((c) => c.id !== optimisticComment.id),
+      ]);
     }
   };
 
@@ -101,7 +164,7 @@ const PostCard = ({ post }: PostCardProps) => {
           </button>
 
           <button
-            onClick={() => setShowComments(!showComments)}
+            onClick={() => setShowComments((prev) => !prev)}
             className="flex items-center gap-1 text-sm text-gray-500 hover:text-green-600 transition"
           >
             <MessageCircle className="h-4 w-4" /> {comments.length}
@@ -124,9 +187,19 @@ const PostCard = ({ post }: PostCardProps) => {
             </form>
             <div className="space-y-2">
               {comments.length > 0 ? (
-                comments.map((c, idx) => (
-                  <div key={idx} className="text-sm text-gray-700">
-                    <span className="font-medium">{post.user.name}:</span> {c}
+                comments.map((c) => (
+                  <div key={c.id} className="flex gap-2 items-start">
+                    <Image
+                      src={c.author.image || "/profile.jpg"}
+                      alt={c.author.name}
+                      width={24}
+                      height={24}
+                      className="w-6 h-6 rounded-full object-cover"
+                    />
+                    <p className="text-sm">
+                      <span className="font-medium">{c.author.name}</span>{" "}
+                      {c.content}
+                    </p>
                   </div>
                 ))
               ) : (

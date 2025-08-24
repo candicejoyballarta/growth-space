@@ -1,5 +1,6 @@
 import { createElement, CSSProperties, JSX } from "react";
 import parse, { domToReact, HTMLReactParserOptions } from "html-react-parser";
+import { Types } from "mongoose";
 
 interface IHTMLModifier {
   matcher: string;
@@ -74,7 +75,7 @@ export function formatDate(date: string | Date): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function mapPost(post: any) {
+export function mapPost(post: any, loggedInUserId?: string) {
   return {
     user: {
       name: post.author?.name ?? "Unknown",
@@ -83,6 +84,11 @@ export function mapPost(post: any) {
     id: post._id.toString(),
     title: post.title,
     likes: Array.isArray(post.likes) ? post.likes.length : 0,
+    liked: loggedInUserId
+      ? post.likes?.some(
+          (likeId: Types.ObjectId) => likeId.toString() === loggedInUserId
+        )
+      : false,
     comments: Array.isArray(post.comments) ? post.comments.length : 0,
     content: post.content,
     tags: Array.isArray(post.tags)

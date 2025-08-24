@@ -136,7 +136,7 @@ export default function ProfileForm({
           type="file"
           id="coverInput"
           name="coverImage"
-          accept="image/*"
+          accept="image/png, image/jpeg"
           onChange={handleCoverChange}
           className="hidden"
         />

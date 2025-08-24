@@ -1,6 +1,6 @@
 import PostCard, { PostCardProps } from "./post-card";
 
-interface ISocFeed {
+export interface ISocFeed {
   posts: PostCardProps["post"][];
 }
 

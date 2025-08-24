@@ -99,6 +99,7 @@ const PeopleYouMayKnowCard = () => {
             >
               <div className="flex items-center gap-2">
                 <Avatar className="w-10 h-10">
+                  <AvatarImage src={person?.image} />
                   <AvatarFallback>{person.name[0]}</AvatarFallback>
                 </Avatar>
                 <span className="text-sm">{person.name}</span>

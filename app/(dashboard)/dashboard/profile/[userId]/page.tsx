@@ -8,20 +8,18 @@ import { authOptions } from "@/lib/auth";
 import Link from "next/link";
 import Image from "next/image";
 import PeopleYouMayKnowCard from "@/components/widgets/PeopleYouMayKnowCard";
+import PopularTags from "@/components/widgets/PopularTags";
 
 interface ProfilePageProps {
   params: { userId: string };
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
-  const { userId } = params;
+  const { userId } = await params;
   const { user, posts } = await getUserById(userId);
   const session = await getServerSession(authOptions);
 
   if (!user) return <p>User not found.</p>;
-
-  // Mock data
-  const popularTags = ["#webdev", "#react", "#typescript", "#ux", "#design"];
 
   return (
     <div className="max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -142,19 +140,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         <PeopleYouMayKnowCard />
 
         {/* Popular Tags */}
-        <div className="border p-4 rounded-lg bg-white shadow-sm">
-          <h3 className="text-lg font-semibold mb-3">Popular Tags</h3>
-          <div className="flex flex-wrap gap-2">
-            {popularTags.map((tag, i) => (
-              <span
-                key={i}
-                className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs cursor-pointer hover:bg-green-200"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
+        <PopularTags />
       </div>
     </div>
   );

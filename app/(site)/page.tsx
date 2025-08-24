@@ -1,8 +1,22 @@
+"use client";
+
 import Herobar from "@/components/shared/Herobar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default async function Home() {
+export default function Home() {
+  const router = useRouter();
+  const { status } = useSession();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/dashboard");
+    }
+  }, [status, router]);
+
   return (
     <div className="min-h-screen bg-white text-gray-900">
       <Herobar />
