@@ -4,12 +4,12 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function useGetUser(email?: string) {
   const { data, error, mutate } = useSWR(
-    email ? `/api/user?email=${email}` : null,
+    email ? `/api/users?email=${email}` : null,
     fetcher
   );
 
   return {
-    profile: data?.user,
+    profile: data?.data?.[0] ?? null,
     loading: !error && !data,
     error,
     refresh: mutate,

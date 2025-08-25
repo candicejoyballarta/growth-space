@@ -1,4 +1,3 @@
-import { getUserById } from "@/actions/users";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import SocialFeed from "@/components/ui/social-feed";
 import { Button } from "@/components/ui/button";
@@ -15,11 +14,19 @@ interface ProfilePageProps {
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
-  const { userId } = await params;
-  const { user, posts } = await getUserById(userId);
+  const { userId } = params;
   const session = await getServerSession(authOptions);
 
-  if (!user) return <p>User not found.</p>;
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/users/${userId}`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  if (!res.ok) return <p>User not found.</p>;
+
+  const { user, posts } = await res.json();
 
   return (
     <div className="max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">

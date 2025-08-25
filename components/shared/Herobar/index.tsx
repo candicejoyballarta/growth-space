@@ -39,10 +39,11 @@ export default function Herobar() {
           <Button
             size="lg"
             className="bg-white text-green-600 hover:bg-gray-100"
+            asChild
           >
             <Link href="/signup">Get Started</Link>
           </Button>
-          <Button size="lg" className="border-white text-white">
+          <Button size="lg" className="border-white text-white" asChild>
             <Link href="about">Learn More</Link>
           </Button>
         </motion.div>

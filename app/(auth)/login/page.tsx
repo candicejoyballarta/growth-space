@@ -30,7 +30,7 @@ export default function LoginPage() {
     const res = await login(email, password);
 
     if (res.error) {
-      setFormError(res.error); // show form-level error
+      setFormError(res.error);
     }
   }
 

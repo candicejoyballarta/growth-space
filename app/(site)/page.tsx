@@ -4,6 +4,7 @@ import Herobar from "@/components/shared/Herobar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -120,7 +121,9 @@ export default function Home() {
         <h2 className="text-2xl md:text-3xl font-bold mb-4">
           Ready to start growing?
         </h2>
-        <Button className="text-lg px-6 py-3">Join Growth Space Today</Button>
+        <Button className="text-lg px-6 py-3" asChild>
+          <Link href="/signup">Join Growth Space Today</Link>
+        </Button>
       </section>
     </div>
   );

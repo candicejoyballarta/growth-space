@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { useAuth } from "@/context/AuthContext";
@@ -43,7 +42,7 @@ const PeopleYouMayKnowCard = () => {
     const fetchPeople = async () => {
       try {
         const res = await fetch(
-          `/api/user/you-may-know?userId=${loggedInUserId}`
+          `/api/users/suggestions?userId=${loggedInUserId}`
         );
         const data = await res.json();
         setPeople(data);
@@ -56,38 +55,6 @@ const PeopleYouMayKnowCard = () => {
   }, [loggedInUserId]);
 
   return (
-    // <Card>
-    //   <CardHeader>
-    //     <CardTitle>People You May Know</CardTitle>
-    //   </CardHeader>
-    //   <CardContent className="space-y-3">
-    //     {people.length > 0 ? (
-    //       people.map((person, i) => (
-    //         <div key={i} className="flex items-center justify-between">
-    //           <div className="flex items-center gap-2">
-    //             <Avatar className="w-8 h-8">
-    //               <AvatarImage src={person.image} alt={person.name} />
-    //               <AvatarFallback>{person.name[0]}</AvatarFallback>
-    //             </Avatar>
-    //             <span className="text-sm">{person.name}</span>
-    //           </div>
-    //           <Button
-    //             size="sm"
-    //             variant="secondary"
-    //             onClick={() => handleFollowUser(person.id)}
-    //           >
-    //             Follow
-    //           </Button>
-    //         </div>
-    //       ))
-    //     ) : (
-    //       <div className="flex flex-col items-center justify-center text-center text-gray-500">
-    //         <p className="mb-2">No new suggestions at the moment.</p>
-    //         <p>Follow more people to see suggestions here!</p>
-    //       </div>
-    //     )}
-    //   </CardContent>
-    // </Card>
     <div className="border p-4 rounded-lg bg-white shadow-sm">
       <h3 className="text-lg font-semibold mb-3">People You May Know</h3>
       <div className="space-y-3">

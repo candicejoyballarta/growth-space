@@ -10,6 +10,9 @@ export interface IUser extends Document {
   password: string;
   following?: [{ type: Schema.Types.ObjectId; ref: "User" }];
   followers?: [{ type: Schema.Types.ObjectId; ref: "User" }];
+  growthAreas: string[];
+  intentions: string;
+  onboardingComplete: boolean;
   createdAt: Date;
 }
 
@@ -24,6 +27,9 @@ const UserSchema = new Schema<IUser>(
     role: { type: String, enum: ["user", "admin"], default: "user" },
     following: [{ type: Schema.Types.ObjectId, ref: "User" }],
     followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    growthAreas: [{ type: String }],
+    intentions: { type: String, default: "" },
+    onboardingComplete: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
   },
   {

@@ -4,19 +4,19 @@ import Link from "next/link";
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-white text-gray-800 py-20 px-6">
+    <div className=" bg-white text-gray-800 py-14 px-6">
       <section className="max-w-4xl mx-auto text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-green-700 mb-4">
+        <h1 className="text-4xl md:text-5xl font-bold text-green-700 mb-2">
           About Growth Space
         </h1>
-        <p className="text-lg text-gray-600 mb-8">
+        <p className="text-lg text-gray-600 mb-4">
           Growth Space is a place for sharing insights, reflections, and
           encouraging others to grow with purpose. It represents a commitment to
           personal development, lifelong learning, and meaningful conversations.
         </p>
       </section>
 
-      <section className="max-w-4xl mx-auto mt-16 grid md:grid-cols-2 gap-12 items-center">
+      <section className="max-w-4xl mx-auto mt-12 grid md:grid-cols-2 gap-12 items-center">
         <Image
           src="/candice-profile.jpg"
           alt="Candice Joy Ballarta"
@@ -30,10 +30,10 @@ export default function AboutPage() {
             Meet the Developer
           </h2>
           <p className="text-gray-700 mb-4">
-            Hi! I&apos;m <strong>Ice</strong>, a Junior Analyst Programmer at
-            Essilor Shared Services Philippines Inc. I specialize in building
-            interactive, user-friendly interfaces using React, Next.js,
-            TypeScript, and Tailwind CSS.
+            Hi! I&apos;m <strong>Candice Joy Ballarta</strong>, an Analyst
+            Programmer at Essilor Shared Services Philippines Inc. I specialize
+            in building interactive, user-friendly interfaces using React,
+            Next.js, TypeScript, and Tailwind CSS.
           </p>
           <p className="text-gray-700 mb-6">
             This project is a reflection of my passion for front-end development
@@ -49,7 +49,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="mt-24 text-center">
+      <section className="mt-16 text-center">
         <h2 className="text-2xl font-semibold mb-4">More From My GitHub</h2>
         <p className="text-gray-600 mb-6 max-w-xl mx-auto">
           You can explore more of my side projects, including web applications,
@@ -65,6 +65,6 @@ export default function AboutPage() {
           </Link>
         </Button>
       </section>
-    </main>
+    </div>
   );
 }

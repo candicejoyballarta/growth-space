@@ -1,17 +1,17 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { ChangeEvent, useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import ProfileForm from "@/components/forms/ProfileForm";
-import { editProfile } from "@/actions/profile";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { updateProfile } from "@/actions/users";
 
 export default function ProfilePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [state, formAction] = useActionState(editProfile, {
+  const [state, formAction] = useActionState(updateProfile, {
     success: false,
     message: "",
     errors: {},

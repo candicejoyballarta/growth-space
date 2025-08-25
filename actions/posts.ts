@@ -3,7 +3,6 @@
 import { mapPost } from "@/lib/helpers";
 import { connectToDB } from "@/lib/mongoose";
 import { postSchema, PostFormValues } from "@/lib/validators/posts";
-import { Comment } from "@/models/Comment";
 import { Post } from "@/models/Post";
 import { User } from "@/models/User";
 import { getServerSession } from "next-auth";
@@ -190,88 +189,6 @@ export async function deletePost(prevState: PostState, postId: string) {
       errors: {},
     };
   }
-}
-
-export async function getAllPosts(loggedInUserId?: string) {
-  await connectToDB();
-
-  const posts = await Post.find({})
-    .populate("author", "name image")
-    .sort({ createdAt: -1 })
-    .lean();
-
-  return posts.map((p) => mapPost(p, loggedInUserId));
-}
-
-export async function getUserPosts(userId: string, loggedInUserId?: string) {
-  await connectToDB();
-
-  const posts = await Post.find({ author: userId })
-    .populate("author", "name image")
-    .sort({ createdAt: -1 })
-    .lean();
-
-  return posts.map((p) => mapPost(p, loggedInUserId));
-}
-
-export async function getTrendingPosts(loggedInUserId?: string) {
-  await connectToDB();
-
-  const posts = await Post.find({})
-    .populate("author", "name image")
-    .sort({ likes: -1, comments: -1 })
-    .lean();
-
-  return posts.map((p) => mapPost(p, loggedInUserId));
-}
-
-export async function getPostsByTag(tag: string, loggedInUserId?: string) {
-  await connectToDB();
-
-  const posts = await Post.find({ tags: tag })
-    .populate("author", "name image")
-    .sort({ createdAt: -1 })
-    .lean();
-
-  return posts.map((p) => mapPost(p, loggedInUserId));
-}
-
-export async function getFollowingPosts(loggedInUserId: string) {
-  await connectToDB();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const user = (await User.findById(loggedInUserId).lean()) as any;
-  const followingUserIds = user?.following || [];
-
-  const posts = await Post.find({
-    author: { $in: [loggedInUserId, ...followingUserIds] },
-  })
-    .populate("author", "name image")
-    .sort({ createdAt: -1 })
-    .lean();
-
-  return posts.map((p) => mapPost(p, loggedInUserId));
-}
-
-export async function getPopularTags() {
-  await connectToDB();
-
-  const tags = await Post.aggregate([
-    { $unwind: "$tags" },
-    {
-      $group: {
-        _id: "$tags",
-        count: { $sum: 1 },
-      },
-    },
-    { $sort: { count: -1 } },
-    { $limit: 7 },
-  ]);
-
-  return tags.map((tag) => ({
-    tagName: tag._id,
-    count: tag.count,
-  }));
 }
 
 export async function likePost(postId: string) {

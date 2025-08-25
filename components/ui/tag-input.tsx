@@ -14,7 +14,7 @@ const TagInput = ({ tags, setTags, placeholder }: TagInputProps) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && inputValue.trim() !== "") {
       e.preventDefault();
-      const newTag = `#${inputValue.trim()}`;
+      const newTag = `${inputValue.trim()}`;
       if (!tags.includes(newTag)) {
         setTags([...tags, newTag]);
       }

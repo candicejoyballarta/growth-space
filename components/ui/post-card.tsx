@@ -1,12 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader } from "./card";
 import { formatDate, html } from "@/lib/helpers";
 import { Heart, MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 
 export interface PostCardProps {
   post: {
@@ -21,6 +22,7 @@ export interface PostCardProps {
     content: string;
     tags?: string[];
     timestamp: string;
+    comments?: CommentType[];
   };
 }
 
@@ -36,24 +38,15 @@ type CommentType = {
 };
 
 const PostCard = ({ post }: PostCardProps) => {
+  const { user } = useAuth();
+  const loggedInUserId = user?.id;
   const [likes, setLikes] = useState(post.likes || 0);
   const [liked, setLiked] = useState(post.liked || false);
-  const [comments, setComments] = useState<CommentType[]>([]);
+  const [comments, setComments] = useState<CommentType[]>(post.comments || []);
   const [commentInput, setCommentInput] = useState("");
   const [showComments, setShowComments] = useState(false);
 
-  console.log(post);
-
-  useEffect(() => {
-    fetch(`/api/posts/${post.id}/comments`)
-      .then((res) => res.json())
-      .then((data) => setComments(data))
-      .catch((err) => console.error("Error fetching comments:", err));
-  }, [post.id]);
-
-  // Toggle like with optimistic UI
   const toggleLike = async () => {
-    // optimistic
     setLiked((prev) => !prev);
     setLikes((prev) => (liked ? prev - 1 : prev + 1));
 
@@ -63,7 +56,6 @@ const PostCard = ({ post }: PostCardProps) => {
 
       if (!data.success) throw new Error("Failed to like");
 
-      // ✅ trust server response
       setLikes(data.likesCount);
       setLiked(data.liked);
     } catch (err) {
@@ -74,7 +66,6 @@ const PostCard = ({ post }: PostCardProps) => {
     }
   };
 
-  // Submit comment with optimistic update
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentInput.trim()) return;
@@ -88,22 +79,34 @@ const PostCard = ({ post }: PostCardProps) => {
     setComments((prev) => [optimisticComment, ...prev]);
     setCommentInput("");
 
-    const res = await fetch(`/api/posts/${post.id}/comments`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: optimisticComment.content }),
-    });
+    try {
+      const res = await fetch(`/api/posts/${post.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "addComment",
+          content: optimisticComment.content,
+          userId: loggedInUserId,
+        }),
+      });
 
-    const data = await res.json();
-    if (!data.success) {
+      const data = await res.json();
+      if (!data.success) {
+        // rollback
+        setComments((prev) =>
+          prev.filter((c) => c.id !== optimisticComment.id)
+        );
+      } else {
+        const newComment: CommentType = data.comment;
+        setComments((prev) => [
+          newComment,
+          ...prev.filter((c) => c.id !== optimisticComment.id),
+        ]);
+      }
+    } catch (err) {
+      console.error("Error posting comment", err);
       // rollback
       setComments((prev) => prev.filter((c) => c.id !== optimisticComment.id));
-    } else {
-      const newComment: CommentType = data.comment;
-      setComments((prev) => [
-        newComment,
-        ...prev.filter((c) => c.id !== optimisticComment.id),
-      ]);
     }
   };
 

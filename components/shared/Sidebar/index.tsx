@@ -27,8 +27,8 @@ type NavItem = {
 export default function Sidebar() {
   const pathname = usePathname() ?? "/";
   const { user } = useAuth();
-  const [open, setOpen] = useState(false);
   const { profile } = useGetUser(user?.email);
+  const [open, setOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: "/" });
@@ -144,12 +144,14 @@ export default function Sidebar() {
                     className="object-cover"
                   />
                 ) : (
-                  <span>{user?.name?.[0]?.toUpperCase() || "U"}</span>
+                  <span>{profile?.name?.[0]?.toUpperCase() || "U"}</span>
                 )}
               </div>
               <div className="flex-1">
-                <div className="text-sm font-semibold">{user?.name}</div>
-                <div className="text-xs text-green-100/80">{user?.email}</div>
+                <div className="text-sm font-semibold">{profile?.name}</div>
+                <div className="text-xs text-green-100/80">
+                  {profile?.email}
+                </div>
               </div>
               <button
                 onClick={handleSignOut}

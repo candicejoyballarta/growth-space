@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
-import { error } from "console";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { createContext, ReactNode, useContext } from "react";
 

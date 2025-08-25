@@ -2,15 +2,15 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { EditProfileState } from "@/actions/profile";
 import Image from "next/image";
 import { Loader2, Pencil } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useSession } from "next-auth/react";
 import { useGetUser } from "@/hooks/useGetUser";
+import { UpdateProfileState } from "@/actions/users";
 
 type ProfileFormProps = {
-  state: EditProfileState;
+  state: UpdateProfileState;
   preview?: string;
   handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   coverPreview?: string;
@@ -91,7 +91,7 @@ export default function ProfileForm({
             id="fileInput"
             name="image"
             className="hidden"
-            accept="image/*"
+            accept="image/png, image/jpeg"
             onChange={handleImageChange}
           />
         </div>

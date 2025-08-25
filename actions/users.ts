@@ -1,63 +1,125 @@
+"use server";
+
 import { connectToDB } from "@/lib/mongoose";
-import { Post } from "@/models/Post";
-import { IUser, User } from "@/models/User";
-import { success } from "zod";
-import { getUserPosts } from "./posts";
+import { User } from "@/models/User";
+import { profileSchema, ProfileFormValues } from "@/lib/validators/profile";
+import { getServerSession, Session } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { uploadImage } from "@/lib/cloudinary";
+import { revalidatePath } from "next/cache";
 
-type IPerson = {
-  _id: string;
-  name: string;
-  image: string;
-};
-
-export async function getPeopleYouMayKnow(loggedInUserId: string) {
-  await connectToDB();
-
-  // Get the logged-in user
-  const currentUser = await User.findById(loggedInUserId).lean<IUser>();
-
-  if (!currentUser) return [];
-
-  const excludeIds = [
-    loggedInUserId,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ...(currentUser.following?.map((item: any) =>
-      item.type ? item.type.toString() : item.toString()
-    ) || []),
-  ];
-
-  // Find users not in the exclude list
-  const users = await User.find({ _id: { $nin: excludeIds } })
-    .select("name image")
-    .limit(3)
-    .lean<IPerson[]>();
-
-  return users.map((user: IPerson) => ({
-    id: user._id.toString(),
-    name: user.name,
-    image: user.image || "/profile.jpg",
-  }));
+export interface UpdateProfileState {
+  success: boolean;
+  message?: string;
+  errors: Partial<Record<keyof ProfileFormValues, string>>;
+  formValues?: Partial<ProfileFormValues>;
+  updatedSession?: Session;
 }
 
-export async function getUserById(userId: string) {
-  await connectToDB();
+export async function updateProfile(
+  prevState: UpdateProfileState,
+  formData: FormData
+): Promise<UpdateProfileState> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    throw new Error("Unauthorized");
+  }
 
-  // Fetch user info and posts in parallel
-  const [userInfo, userPosts] = await Promise.all([
-    User.findById(userId).lean<IUser>(),
-    getUserPosts(userId),
-  ]);
+  // Handle optional image upload
+  let imageUrl: string | undefined;
+  const rawImage = formData.get("image") as File | null;
+  if (rawImage && rawImage.size > 0) {
+    try {
+      imageUrl = await uploadImage(rawImage);
+    } catch {
+      return {
+        success: false,
+        message: "Image upload failed.",
+        errors: { image: "Failed to upload image" },
+        formValues: {
+          name: formData.get("name")?.toString() ?? "",
+          bio: formData.get("bio")?.toString() ?? "",
+        },
+      };
+    }
+  }
 
-  if (!userInfo) {
+  // Handle cover image upload
+  let coverImageUrl: string | undefined;
+  const rawCover = formData.get("coverImage") as File | null;
+  if (rawCover && rawCover.size > 0) {
+    try {
+      coverImageUrl = await uploadImage(rawCover);
+    } catch {
+      return {
+        success: false,
+        message: "Cover image upload failed.",
+        errors: { coverImage: "Failed to upload cover image" },
+        formValues: {
+          name: formData.get("name")?.toString() ?? "",
+          bio: formData.get("bio")?.toString() ?? "",
+          image: imageUrl,
+        },
+      };
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const currentUser: any = await User.findOne({
+    email: session.user.email,
+  }).lean();
+
+  // Prepare and validate data
+  const raw = {
+    image: imageUrl || currentUser?.image,
+    coverImage: coverImageUrl || currentUser?.coverImage,
+    name: formData.get("name")?.toString() ?? "",
+    bio: formData.get("bio")?.toString() ?? "",
+  };
+
+  const parsed = profileSchema.safeParse(raw);
+  if (!parsed.success) {
+    const errors: UpdateProfileState["errors"] = {};
+    parsed.error.issues.forEach((e) => {
+      const key = e.path[0];
+      if (typeof key === "string") {
+        errors[key as keyof ProfileFormValues] = e.message;
+      }
+    });
+
     return {
       success: false,
-      message: "There was an error finding this user.",
+      message: "Please correct the errors below:",
+      errors,
+      formValues: { name: raw.name, bio: raw.bio },
     };
   }
 
-  return {
-    success: true,
-    user: userInfo,
-    posts: userPosts,
-  };
+  const { name, bio, image, coverImage } = parsed.data;
+
+  // Save changes
+  try {
+    await connectToDB();
+    await User.findOneAndUpdate(
+      { email: session.user.email },
+      { name, bio, image, coverImage },
+      { new: true }
+    );
+
+    revalidatePath("/dashboard");
+
+    return {
+      success: true,
+      message: "Profile updated successfully.",
+      errors: {},
+      formValues: { name, bio, image, coverImage },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Failed to update profile.",
+      errors: {},
+      formValues: { name, bio, image, coverImage },
+    };
+  }
 }

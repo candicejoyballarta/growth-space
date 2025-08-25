@@ -21,8 +21,6 @@ const MainFeed = ({ latest, trending }: IMainFeed) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  console.log(scrolled);
-
   return (
     <Tabs defaultValue="latest">
       <TabsList

@@ -100,3 +100,8 @@ export function mapPost(post: any, loggedInUserId?: string) {
     timestamp: post.createdAt?.toISOString() ?? "",
   };
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function mapPosts(posts: any[], loggedInUserId?: string) {
+  return posts.map((p) => mapPost(p, loggedInUserId));
+}

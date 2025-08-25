@@ -1,9 +1,56 @@
 "use server";
 
+import bcrypt from "bcryptjs";
+import { loginSchema, LoginFormValues } from "@/lib/validators/login";
 import { signupSchema, SignupFormValues } from "@/lib/validators/signup";
 import { connectToDB } from "@/lib/mongoose";
-import bcrypt from "bcryptjs";
 import { User } from "@/models/User";
+
+import { redirect } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+
+export interface LoginState {
+  success: boolean;
+  errors: Partial<Record<keyof LoginFormValues, string>>;
+  formValues?: Partial<LoginFormValues>;
+  message?: string;
+  data?: LoginFormValues;
+}
+
+export async function login(
+  prevState: LoginState,
+  formData: FormData
+): Promise<LoginState> {
+  const raw = {
+    email: formData.get("email")?.toString() ?? "",
+    password: formData.get("password")?.toString() ?? "",
+  };
+
+  const parsed = loginSchema.safeParse(raw);
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+    parsed.error.issues.forEach((issue) => {
+      const path = issue.path[0];
+      if (typeof path === "string") {
+        fieldErrors[path] = issue.message;
+      }
+    });
+
+    return {
+      success: false,
+      errors: fieldErrors,
+      formValues: { email: raw.email?.toString() },
+      message: "Please correct the errors below.",
+    };
+  }
+
+  return {
+    success: true,
+    errors: {},
+    formValues: { email: parsed.data.email },
+    data: parsed.data,
+  };
+}
 
 export interface SignupState {
   success: boolean;
@@ -68,6 +115,7 @@ export async function signup(
       success: true,
       message: "🎉 Account created successfully! You can now log in.",
       errors: {},
+      formValues: { email, password },
     };
   } catch (error) {
     console.error("Signup error:", error);
@@ -77,4 +125,10 @@ export async function signup(
       errors: {},
     };
   }
+}
+function signIn(
+  arg0: string,
+  arg1: { email: string; password: string; redirectTo: string }
+) {
+  throw new Error("Function not implemented.");
 }

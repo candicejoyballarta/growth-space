@@ -1,37 +1,38 @@
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongoose";
-import { Post } from "@/models/Post";
+import { User } from "@/models/User";
 
 export async function GET(req: Request) {
   try {
     await connectToDB();
 
     const { searchParams } = new URL(req.url);
-    const tag = searchParams.get("tag");
-    const author = searchParams.get("author");
+    const name = searchParams.get("name");
+    const email = searchParams.get("email");
+    const role = searchParams.get("role");
     const limit = parseInt(searchParams.get("limit") || "20", 10);
     const page = parseInt(searchParams.get("page") || "1", 10);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const query: Record<string, any> = {};
-    if (tag) query.tags = tag;
-    if (author) query.author = author;
+    if (name) query.name = name;
+    if (email) query.email = email;
+    if (role) query.role = role;
 
     // Pagination
     const skip = (page - 1) * limit;
 
-    // Fetch posts
-    const posts = await Post.find(query)
+    // Fetch users
+    const users = await User.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("author", "username avatar")
       .lean();
 
-    const total = await Post.countDocuments(query);
+    const total = await User.countDocuments(query);
 
     return NextResponse.json({
-      data: posts,
+      data: users,
       pagination: {
         total,
         page,
@@ -40,9 +41,9 @@ export async function GET(req: Request) {
       },
     });
   } catch (error) {
-    console.error("[GET /api/posts] Error:", error);
+    console.error("[GET /api/users] Error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch posts" },
+      { error: "Failed to fetch users" },
       { status: 500 }
     );
   }
