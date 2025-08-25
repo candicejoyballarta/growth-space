@@ -19,11 +19,22 @@ export default function NewEntryPage() {
       title: "",
       content: "",
       tags: [],
+      goalId: "",
     },
   });
 
   const [tags, setTags] = useState<string[]>(state.formValues?.tags || []);
   const [content, setContent] = useState("");
+  const [selectedGoal, setSelectedGoal] = useState(
+    state.formValues?.goalId || ""
+  );
+
+  // Example static goals — replace with fetched goals from your DB
+  const goals = [
+    { _id: "1", title: "Lose Weight" },
+    { _id: "2", title: "Read More Books" },
+    { _id: "3", title: "Learn TypeScript" },
+  ];
 
   useEffect(() => {
     if (state.success) {
@@ -43,6 +54,22 @@ export default function NewEntryPage() {
           required
           defaultValue={state.formValues?.title}
         />
+
+        {/* Goal Selection */}
+        <select
+          name="goalId"
+          value={selectedGoal}
+          onChange={(e) => setSelectedGoal(e.target.value)}
+          className="w-full p-2 border rounded"
+        >
+          <option value="">-- Select a Goal (optional) --</option>
+          {goals.map((goal) => (
+            <option key={goal._id} value={goal._id}>
+              {goal.title}
+            </option>
+          ))}
+        </select>
+
         <WysiwygEditor content={content} setContent={setContent} />
         <TagInput
           tags={tags}
@@ -64,6 +91,8 @@ export default function NewEntryPage() {
             </ul>
           </div>
         )}
+
+        <input type="hidden" name="goalId" value={selectedGoal} />
 
         <Button type="submit" className="w-full">
           Submit Post

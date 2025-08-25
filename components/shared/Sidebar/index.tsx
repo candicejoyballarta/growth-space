@@ -60,7 +60,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Mobile toggle */}
-      <div className="md:hidden p-2">
+      <div className="lg:hidden p-2">
         <button
           onClick={() => setOpen((s) => !s)}
           aria-label="Toggle menu"
@@ -74,7 +74,7 @@ export default function Sidebar() {
       <aside
         className={cn(
           "fixed left-0 top-0 h-screen w-[250px] bg-green-600 text-white z-40 transition-transform",
-          open ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
         aria-label="Sidebar"
       >
@@ -183,7 +183,7 @@ export default function Sidebar() {
       {open && (
         <div
           onClick={() => setOpen(false)}
-          className="fixed inset-0 z-30 bg-black/40 md:hidden"
+          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
           aria-hidden
         />
       )}

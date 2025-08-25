@@ -13,7 +13,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <Sidebar />
 
       {/* Main Content */}
-      <main className="md:ml-[250px] p-6">{children}</main>
+      <main className="lg:ml-[250px] p-6">{children}</main>
 
       {/* Toaster */}
       <Toaster />

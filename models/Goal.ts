@@ -12,6 +12,7 @@ export interface IGoal extends Document {
   description?: string;
   milestones: [IMilestone];
   progress: number;
+  color?: string;
   user: IUser["_id"];
   createdAt: Date;
 }
@@ -27,6 +28,7 @@ const GoalSchema = new Schema<IGoal>({
   description: { type: String, default: "" },
   milestones: [MilestoneSchema],
   progress: { type: Number, default: 0 },
+  color: { type: String, default: "#000000" },
   user: { type: Schema.Types.ObjectId, ref: "User", required: true },
   createdAt: { type: Date, default: Date.now },
 });

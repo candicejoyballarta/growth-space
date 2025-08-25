@@ -20,6 +20,7 @@ export async function createPost(
 ): Promise<PostState> {
   const raw = {
     title: formData.get("title")?.toString() ?? "",
+    goalId: formData.get("goalId") ? formData.get("goalId")!.toString() : null,
     content: formData.get("content")?.toString() ?? "",
     tags: formData.get("tags")
       ? JSON.parse(formData.get("tags") as string)
@@ -39,7 +40,12 @@ export async function createPost(
     return {
       success: false,
       errors: fieldErrors,
-      formValues: { title: raw.title, content: raw.content, tags: raw.tags },
+      formValues: {
+        title: raw.title,
+        goalId: raw.goalId,
+        content: raw.content,
+        tags: raw.tags,
+      },
       message: "Please correct the errors below.",
     };
   }
@@ -54,6 +60,7 @@ export async function createPost(
 
     const postData: PostFormValues = {
       title: parsed.data.title,
+      goalId: parsed.data.goalId,
       content: parsed.data.content,
       tags: parsed.data.tags,
     };
@@ -86,9 +93,9 @@ export async function createPost(
 
 export async function updatePost(
   prevState: PostState,
-  formData: FormData,
-  postId: string
+  formData: FormData
 ): Promise<PostState> {
+  const postId = formData.get("postId") as string;
   const raw = {
     title: formData.get("title")?.toString() ?? "",
     content: formData.get("content")?.toString() ?? "",
