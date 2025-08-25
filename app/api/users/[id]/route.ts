@@ -5,10 +5,11 @@ import { Post } from "@/models/Post";
 import { mapPost, mapPosts } from "@/lib/helpers";
 
 interface Params {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export async function GET(req: Request, { params }: Params) {
+export async function GET(req: Request, props: Params) {
+  const params = await props.params;
   try {
     await connectToDB();
 

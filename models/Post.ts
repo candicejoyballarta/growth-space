@@ -2,7 +2,11 @@ import mongoose, { Schema, Document } from "mongoose";
 import { IUser } from "./User";
 
 export interface IComment extends Document {
-  author: IUser["_id"];
+  author: {
+    _id: IUser["_id"];
+    name: string;
+    image?: string;
+  };
   content: string;
   createdAt: Date;
 }
@@ -18,7 +22,11 @@ export interface IPost extends Document {
 
 const CommentSchema = new Schema<IComment>({
   content: { type: String, required: true },
-  author: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  author: {
+    _id: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    name: { type: String, required: true },
+    image: { type: String, default: "/profile.jpg" },
+  },
   createdAt: { type: Date, default: Date.now },
 });
 

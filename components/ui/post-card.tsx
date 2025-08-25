@@ -3,11 +3,18 @@
 import Image from "next/image";
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader } from "./card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
 import { formatDate, html } from "@/lib/helpers";
-import { Heart, MessageCircle } from "lucide-react";
+import { Ellipsis, Heart, MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import CommentsSection, { CommentType } from "./comments";
 
 export interface PostCardProps {
   post: {
@@ -26,24 +33,12 @@ export interface PostCardProps {
   };
 }
 
-type CommentType = {
-  id: string;
-  content: string;
-  author: {
-    id?: string;
-    name: string;
-    image: string;
-  };
-  createdAt?: string;
-};
-
 const PostCard = ({ post }: PostCardProps) => {
   const { user } = useAuth();
   const loggedInUserId = user?.id;
   const [likes, setLikes] = useState(post.likes || 0);
   const [liked, setLiked] = useState(post.liked || false);
-  const [comments, setComments] = useState<CommentType[]>(post.comments || []);
-  const [commentInput, setCommentInput] = useState("");
+
   const [showComments, setShowComments] = useState(false);
 
   const toggleLike = async () => {
@@ -66,57 +61,13 @@ const PostCard = ({ post }: PostCardProps) => {
     }
   };
 
-  const handleCommentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!commentInput.trim()) return;
-
-    const optimisticComment: CommentType = {
-      id: `temp-${Date.now()}`,
-      content: commentInput,
-      author: { name: "You", image: "/profile.jpg" },
-    };
-
-    setComments((prev) => [optimisticComment, ...prev]);
-    setCommentInput("");
-
-    try {
-      const res = await fetch(`/api/posts/${post.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "addComment",
-          content: optimisticComment.content,
-          userId: loggedInUserId,
-        }),
-      });
-
-      const data = await res.json();
-      if (!data.success) {
-        // rollback
-        setComments((prev) =>
-          prev.filter((c) => c.id !== optimisticComment.id)
-        );
-      } else {
-        const newComment: CommentType = data.comment;
-        setComments((prev) => [
-          newComment,
-          ...prev.filter((c) => c.id !== optimisticComment.id),
-        ]);
-      }
-    } catch (err) {
-      console.error("Error posting comment", err);
-      // rollback
-      setComments((prev) => prev.filter((c) => c.id !== optimisticComment.id));
-    }
-  };
-
   return (
     <Card className="shadow-sm rounded-lg gap-2 border border-gray-200 hover:shadow-md transition-shadow">
       {/* Header */}
       <CardHeader className="flex flex-row items-center gap-3 pb-2">
         <Image
-          width={40}
-          height={40}
+          width={50}
+          height={50}
           src={post.user.image}
           alt={post.user.name}
           className="h-10 w-10 rounded-full object-cover"
@@ -170,46 +121,16 @@ const PostCard = ({ post }: PostCardProps) => {
             onClick={() => setShowComments((prev) => !prev)}
             className="flex items-center gap-1 text-sm text-gray-500 hover:text-green-600 transition"
           >
-            <MessageCircle className="h-4 w-4" /> {comments.length}
+            <MessageCircle className="h-4 w-4" /> {post.comments?.length}
           </button>
         </div>
 
         {/* Comment Section */}
         {showComments && (
-          <div className="mt-3 space-y-3">
-            <form onSubmit={handleCommentSubmit} className="flex gap-2">
-              <Input
-                value={commentInput}
-                onChange={(e) => setCommentInput(e.target.value)}
-                placeholder="Write a comment..."
-                className="flex-1"
-              />
-              <Button type="submit" size="sm">
-                Post
-              </Button>
-            </form>
-            <div className="space-y-2">
-              {comments.length > 0 ? (
-                comments.map((c) => (
-                  <div key={c.id} className="flex gap-2 items-start">
-                    <Image
-                      src={c.author.image || "/profile.jpg"}
-                      alt={c.author.name}
-                      width={24}
-                      height={24}
-                      className="w-6 h-6 rounded-full object-cover"
-                    />
-                    <p className="text-sm">
-                      <span className="font-medium">{c.author.name}</span>{" "}
-                      {c.content}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-xs text-gray-400">No comments yet.</p>
-              )}
-            </div>
-          </div>
+          <CommentsSection
+            postId={post.id}
+            postComments={post.comments || []}
+          />
         )}
       </CardContent>
     </Card>

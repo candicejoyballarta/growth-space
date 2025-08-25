@@ -4,10 +4,8 @@ import { connectToDB } from "@/lib/mongoose";
 import { User } from "@/models/User";
 import { Post } from "@/models/Post";
 
-export async function POST(
-  req: Request,
-  { params }: { params: { postId: string } }
-) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     await connectToDB();
     const session = await getServerSession();
@@ -27,7 +25,7 @@ export async function POST(
       );
     }
 
-    const post = await Post.findById(params.postId);
+    const post = await Post.findById(params.id);
     if (!post) {
       return NextResponse.json(
         { success: false, message: "Post not found" },

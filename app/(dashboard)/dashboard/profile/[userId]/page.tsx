@@ -8,19 +8,25 @@ import Link from "next/link";
 import Image from "next/image";
 import PeopleYouMayKnowCard from "@/components/widgets/PeopleYouMayKnowCard";
 import PopularTags from "@/components/widgets/PopularTags";
+import { cookies } from "next/headers";
 
 interface ProfilePageProps {
-  params: { userId: string };
+  params: Promise<{ userId: string }>;
 }
 
-export default async function ProfilePage({ params }: ProfilePageProps) {
+export default async function ProfilePage(props: ProfilePageProps) {
+  const params = await props.params;
   const { userId } = params;
   const session = await getServerSession(authOptions);
+  const cookieStore = await cookies();
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/users/${userId}`,
     {
       cache: "no-store",
+      headers: {
+        Cookie: cookieStore.toString(),
+      },
     }
   );
 

@@ -89,7 +89,19 @@ export function mapPost(post: any, loggedInUserId?: string) {
           (likeId: Types.ObjectId) => likeId.toString() === loggedInUserId
         )
       : false,
-    comments: Array.isArray(post.comments) ? post.comments.length : 0,
+    comments: Array.isArray(post.comments)
+      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        post.comments.map((comment: any) => ({
+          _id: comment._id,
+          author: {
+            _id: comment.author._id,
+            name: comment.author.name ?? "Unknown",
+            image: comment.author.image ?? "/profile.jpg",
+          },
+          content: comment.content,
+          timestamp: comment.createdAt?.toISOString() ?? "",
+        }))
+      : [],
     content: post.content,
     tags: Array.isArray(post.tags)
       ? // eslint-disable-next-line @typescript-eslint/no-explicit-any

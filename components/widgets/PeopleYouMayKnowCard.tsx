@@ -10,14 +10,14 @@ const PeopleYouMayKnowCard = () => {
   const { user } = useAuth();
   const loggedInUserId = user?.id;
   const [suggestedConnections, setPeople] = useState<
-    { id: string; name: string; image: string }[]
+    { _id: string; name: string; image: string }[]
   >([]);
 
   const handleFollowUser = async (followeeId: string) => {
     if (!loggedInUserId) return;
 
     try {
-      const res = await fetch("/api/user/follow", {
+      const res = await fetch("/api/users/follow", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ followerId: loggedInUserId, followeeId }),
@@ -25,7 +25,7 @@ const PeopleYouMayKnowCard = () => {
 
       if (res.ok) {
         // Remove the followed user from suggestions
-        setPeople((prev) => prev.filter((p) => p.id !== followeeId));
+        setPeople((prev) => prev.filter((p) => p._id !== followeeId));
 
         toast.success("User successfully followed!");
       } else {
@@ -61,7 +61,7 @@ const PeopleYouMayKnowCard = () => {
         {suggestedConnections.length > 0 ? (
           suggestedConnections.map((person) => (
             <div
-              key={person.id}
+              key={person._id}
               className="flex items-center justify-between gap-2"
             >
               <div className="flex items-center gap-2">
@@ -74,7 +74,7 @@ const PeopleYouMayKnowCard = () => {
               <Button
                 size="sm"
                 className="cursor-pointer"
-                onClick={() => handleFollowUser(person.id)}
+                onClick={() => handleFollowUser(person._id)}
               >
                 Follow
               </Button>

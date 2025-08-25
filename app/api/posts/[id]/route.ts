@@ -1,18 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongoose";
 import { Post } from "@/models/Post";
+import { User } from "@/models/User";
 
-interface Params {
-  params: { postId: string };
+interface IAuthor {
+  _id: string;
+  name: string;
+  image: string;
 }
 
-export async function GET(req: Request, { params }: Params) {
+interface Params {
+  params: Promise<{ id: string }>;
+}
+
+export async function GET(req: Request, props: Params) {
+  const params = await props.params;
+  const postId = params.id;
   try {
     await connectToDB();
 
-    const post = await Post.findById(params.postId)
-      .populate("author", "username avatar")
-      .populate("comments.author", "username");
+    const post = await Post.findById(postId)
+      .populate("author", "name image")
+      .populate("comments.author", "name image");
 
     if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
@@ -30,43 +39,74 @@ export async function GET(req: Request, { params }: Params) {
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
+  const params = await props.params;
   try {
-    const { action, content, userId } = await req.json();
+    const postId = params.id;
+    const { action, content, userId, commentId } = await req.json();
 
-    if (!params.id) {
+    if (!postId)
       return NextResponse.json({ error: "Missing post ID" }, { status: 400 });
-    }
 
     await connectToDB();
 
-    const post = await Post.findById(params.id);
-    if (!post) {
+    const post = await Post.findById(postId).populate("author", "name image");
+    if (!post)
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
-    }
 
     switch (action) {
       case "addComment":
-        if (!content || !userId) {
+        if (!content || !userId)
           return NextResponse.json(
-            { error: "Missing comment content or userId" },
+            { error: "Missing content or userId" },
             { status: 400 }
           );
-        }
-        post.comments.push({
+
+        const user = await User.findById(userId).lean<IAuthor>();
+        if (!user)
+          return NextResponse.json(
+            { error: "User not found" },
+            { status: 404 }
+          );
+
+        const newComment = {
           content,
-          author: userId,
+          author: {
+            _id: user._id,
+            name: user.name,
+            image: user.image || "/profile.jpg",
+          },
           createdAt: new Date(),
-        });
+        };
+
+        post.comments.push(newComment);
         await post.save();
-        break;
+
+        return NextResponse.json({ success: true, comment: newComment });
+
+      case "deleteComment":
+        if (!commentId || !userId)
+          return NextResponse.json(
+            { error: "Missing commentId" },
+            { status: 400 }
+          );
+
+        post.comments = post.comments.filter(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (c: any) =>
+            !(
+              c._id.toString() === commentId &&
+              c.author._id.toString() === userId
+            )
+        );
+
+        await post.save();
+        return NextResponse.json({ success: true });
 
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
-
-    return NextResponse.json({ success: true, post });
   } catch (error) {
     console.error("PATCH error:", error);
     return NextResponse.json(

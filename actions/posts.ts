@@ -1,6 +1,4 @@
 "use server";
-
-import { mapPost } from "@/lib/helpers";
 import { connectToDB } from "@/lib/mongoose";
 import { postSchema, PostFormValues } from "@/lib/validators/posts";
 import { Post } from "@/models/Post";
