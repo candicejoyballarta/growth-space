@@ -4,6 +4,7 @@ import { Post } from "@/models/Post";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { mapPosts } from "@/lib/helpers";
+import { Goal } from "@/models/Goal";
 
 interface Params {
   params: Promise<{ tag: string }>;
@@ -28,6 +29,11 @@ export async function GET(req: Request, props: Params) {
     const posts = await Post.find({ tags: params.tag })
       .sort({ createdAt: -1 })
       .populate("author", "name image")
+      .populate({
+        path: "goalId",
+        select: "title progress color emoji",
+        model: Goal,
+      })
       .skip(skip)
       .limit(limit)
       .lean();

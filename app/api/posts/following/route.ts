@@ -5,6 +5,7 @@ import { IUser, User } from "@/models/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { mapPosts } from "@/lib/helpers";
+import { Goal } from "@/models/Goal";
 
 export async function GET(req: Request) {
   try {
@@ -28,7 +29,12 @@ export async function GET(req: Request) {
     const posts = await Post.find({
       author: { $in: queryIds },
     })
-      .populate("author", "name image")
+      .populate("author", "_id name image")
+      .populate({
+        path: "goalId",
+        select: "title progress color emoji",
+        model: Goal,
+      })
       .sort({ createdAt: -1 })
       .lean();
 

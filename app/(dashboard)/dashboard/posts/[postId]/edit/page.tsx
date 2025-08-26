@@ -1,6 +1,6 @@
 "use client";
 
-import { createPost } from "@/actions/posts";
+import { updatePost } from "@/actions/posts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,64 +12,86 @@ import {
 } from "@/components/ui/select";
 import TagInput from "@/components/ui/tag-input";
 import WysiwygEditor from "@/components/ui/wysiwyg-editor";
-import { useAuth } from "@/context/AuthContext";
 import { useGetUserGoals } from "@/hooks/useGetUserGoals";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { IGoal } from "../goals/page";
+import { IGoal } from "../../../goals/page";
 import { useSession } from "next-auth/react";
 
-export default function NewEntryPage() {
+export default function EditPostPage() {
   const { data: session, status } = useSession();
-
   const router = useRouter();
-  const [state, formAction] = useActionState(createPost, {
+  const { postId } = useParams();
+  const [state, formAction] = useActionState(updatePost, {
     success: false,
     message: "",
     errors: {},
-    formValues: {
-      title: "",
-      content: "",
-      tags: [],
-      goalId: "",
-    },
+    formValues: {},
   });
 
-  const [tags, setTags] = useState<string[]>(state.formValues?.tags || []);
-  const [content, setContent] = useState("");
-  const [selectedGoal, setSelectedGoal] = useState(
-    state.formValues?.goalId || ""
-  );
+  // Initialize as undefined to detect loading
+  const [title, setTitle] = useState<string | undefined>(undefined);
+  const [content, setContent] = useState<string | undefined>(undefined);
+  const [tags, setTags] = useState<string[] | undefined>(undefined);
+  const [selectedGoal, setSelectedGoal] = useState<string>("");
 
-  const { goals, loading, error } = useGetUserGoals(session?.user.id);
+  const { goals, loading: goalsLoading } = useGetUserGoals(session?.user?.id);
+
+  // Fetch post data
+  useEffect(() => {
+    if (!postId) return;
+
+    const fetchPost = async () => {
+      try {
+        const res = await fetch(`/api/posts/${postId}`);
+        const data = await res.json();
+
+        if (data?.error) throw new Error(data.error);
+
+        setTitle(data.title || "");
+        setContent(data.content || "");
+        setTags(data.tags || []);
+        setSelectedGoal(data.goal?._id || "");
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to fetch post data");
+      }
+    };
+
+    fetchPost();
+  }, [postId]);
 
   useEffect(() => {
     if (state.success) {
-      toast.success("Post created successfully!");
+      toast.success("Post updated successfully!");
       router.push("/dashboard");
     }
   }, [state.success, router]);
 
-  if (status === "loading") return <p>Loading...</p>;
-  if (!session) return <p>You are not logged in</p>;
+  if (status === "loading") return <p>Loading session...</p>;
+  if (!session) return <p>You are not logged in.</p>;
+
+  // Wait until post data is fetched
+  if (title === undefined || content === undefined || tags === undefined) {
+    return <p>Loading post data...</p>;
+  }
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Create a New Post</h1>
+      <h1 className="text-2xl font-bold mb-4">Edit a Post</h1>
       <form className="space-y-4" action={formAction}>
         <Input
           type="text"
           placeholder="Post Title"
           name="title"
           required
-          defaultValue={state.formValues?.title}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
-        <input type="hidden" name="goalId" value={selectedGoal} />
 
-        {/* Goal Selection */}
-        {loading ? (
-          <p>Loading...</p>
+        {goalsLoading ? (
+          <p>Loading goals...</p>
         ) : (
           <Select
             name="goalId"
@@ -90,14 +112,16 @@ export default function NewEntryPage() {
         )}
 
         <WysiwygEditor content={content} setContent={setContent} />
+        <input type="hidden" name="content" value={content} />
+
         <TagInput
           tags={tags}
           setTags={setTags}
           placeholder="Add Tags"
           name="tags"
         />
+        <input type="hidden" name="tags" value={tags.join(",")} />
 
-        {/* Error Messages */}
         {state.message && !state.success && (
           <div className="mb-4 rounded-md bg-red-50 border border-red-300 p-3">
             <p className="text-sm font-medium text-red-700 mb-2">
@@ -114,7 +138,7 @@ export default function NewEntryPage() {
         <input type="hidden" name="goalId" value={selectedGoal} />
 
         <Button type="submit" className="w-full">
-          Submit Post
+          Update Post
         </Button>
       </form>
     </div>

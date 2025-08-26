@@ -3,22 +3,26 @@
 import Image from "next/image";
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader } from "./card";
+import { formatDate } from "@/lib/helpers";
+import { Heart, MessageCircle, MoreVertical } from "lucide-react";
+import CommentsSection, { CommentType } from "./comments";
+import PostContent from "./post-content";
+import GoalEmbed from "./goal-embed";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
-import { formatDate, html } from "@/lib/helpers";
-import { Ellipsis, Heart, MessageCircle } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/AuthContext";
-import CommentsSection, { CommentType } from "./comments";
+import { Button } from "./button";
+import Link from "next/link";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export interface PostCardProps {
   post: {
     user: {
+      _id: string;
       name: string;
       image: string;
     };
@@ -30,12 +34,20 @@ export interface PostCardProps {
     tags?: string[];
     timestamp: string;
     comments?: CommentType[];
+    goalId?: {
+      _id: string;
+      title: string;
+      progress: number;
+      color: string;
+      emoji: string;
+    } | null;
   };
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const PostCard = ({ post }: PostCardProps) => {
-  const { user } = useAuth();
-  const loggedInUserId = user?.id;
+const PostCard = ({ post, loading, setLoading }: PostCardProps) => {
+  const router = useRouter();
   const [likes, setLikes] = useState(post.likes || 0);
   const [liked, setLiked] = useState(post.liked || false);
 
@@ -61,23 +73,70 @@ const PostCard = ({ post }: PostCardProps) => {
     }
   };
 
+  const handleDelete = async (postId: string) => {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/posts/${postId}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success("Post deleted!");
+        // Optionally: refresh page or remove post from UI
+        router.refresh(); // if you're in an app router context
+      } else {
+        toast.error(data.error || "Failed to delete post");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong while deleting the post");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Card className="shadow-sm rounded-lg gap-2 border border-gray-200 hover:shadow-md transition-shadow">
-      {/* Header */}
-      <CardHeader className="flex flex-row items-center gap-3 pb-2">
-        <Image
-          width={50}
-          height={50}
-          src={post.user.image}
-          alt={post.user.name}
-          className="h-10 w-10 rounded-full object-cover"
-        />
-        <div>
-          <p className="font-medium leading-tight">{post.user.name}</p>
-          <p className="text-xs text-muted-foreground">
-            {formatDate(post.timestamp)}
-          </p>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <div className="flex items-center gap-3">
+          <Image
+            width={50}
+            height={50}
+            src={post.user.image}
+            alt={post.user.name}
+            className="h-10 w-10 rounded-full object-cover"
+          />
+          <div>
+            <p className="font-medium leading-tight">{post.user.name}</p>
+            <p className="text-xs text-muted-foreground">
+              {formatDate(post.timestamp)}
+            </p>
+          </div>
         </div>
+
+        {/* Three dots menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="icon" variant="ghost" className="rounded-full">
+              <MoreVertical className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link href={`/dashboard/posts/${post.id}/edit`}>Edit</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-red-600 focus:text-red-600"
+              onClick={() => handleDelete(post.id)}
+            >
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </CardHeader>
 
       {/* Content */}
@@ -86,9 +145,11 @@ const PostCard = ({ post }: PostCardProps) => {
           <h3 className="text-base font-semibold">{post.title}</h3>
         )}
 
-        <div className="text-sm text-foreground whitespace-pre-wrap">
-          {html(post.content)}
-        </div>
+        <PostContent content={post.content} />
+
+        {post.goalId?.title && (
+          <GoalEmbed goal={post.goalId} userId={post.user._id} />
+        )}
 
         {post.tags && post.tags?.length > 0 && (
           <div className="flex flex-wrap gap-2">

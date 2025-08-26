@@ -19,10 +19,10 @@ const PopularTags = async () => {
     <div className="border p-4 rounded-lg bg-white shadow-sm">
       <h3 className="text-lg font-semibold mb-3">Popular Tags</h3>
       <div className="flex flex-wrap gap-2">
-        {popularTags.map((tag: { _id: string; count: number }, i: number) => (
-          <Link href={`/tags/${tag._id}`} key={i}>
+        {popularTags.map((tag: { tag: string; count: number }, i: number) => (
+          <Link href={`/tags/${tag.tag}`} key={i}>
             <div className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs cursor-pointer hover:bg-green-200">
-              <span className="font-medium">#{tag._id}</span>
+              <span className="font-medium">#{tag.tag}</span>
               <span className="bg-green-200 text-green-800 px-2 py-0.5 rounded-full text-[10px]">
                 {tag.count}
               </span>

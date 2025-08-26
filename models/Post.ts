@@ -14,7 +14,7 @@ export interface IComment extends Document {
 
 export interface IPost extends Document {
   author: IUser["_id"];
-  goal?: IGoal["_id"];
+  goalId?: IGoal["_id"];
   title: string;
   content: string;
   tags: string[];
@@ -35,7 +35,7 @@ const CommentSchema = new Schema<IComment>({
 const PostSchema = new Schema<IPost>(
   {
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    goal: { type: Schema.Types.ObjectId, ref: "Goal" },
+    goalId: { type: Schema.Types.ObjectId, ref: "Goal" },
     title: { type: String, required: true },
     content: { type: String, required: true },
     tags: [{ type: String }],

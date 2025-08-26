@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongoose";
 import { Post } from "@/models/Post";
+import { Goal } from "@/models/Goal";
+import { mapPosts } from "@/lib/helpers";
 
 export async function GET(req: Request) {
   try {
@@ -26,6 +28,11 @@ export async function GET(req: Request) {
       .skip(skip)
       .limit(limit)
       .populate("author", "name image")
+      .populate({
+        path: "goalId",
+        select: "title progress color emoji",
+        model: Goal,
+      })
       .lean();
 
     const total = await Post.countDocuments(query);

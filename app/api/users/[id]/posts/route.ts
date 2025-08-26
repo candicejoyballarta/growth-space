@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongoose";
 import { Post } from "@/models/Post";
+import { Goal } from "@/models/Goal";
+import { mapPosts } from "@/lib/helpers";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -19,6 +21,11 @@ export async function GET(req: Request, props: Params) {
 
     const posts = await Post.find({ author: params.id })
       .sort({ createdAt: -1 })
+      .populate({
+        path: "goalId",
+        select: "title progress color emoji",
+        model: Goal,
+      })
       .skip(skip)
       .limit(limit)
       .lean();
@@ -26,7 +33,7 @@ export async function GET(req: Request, props: Params) {
     const total = await Post.countDocuments({ author: params.id });
 
     return NextResponse.json({
-      data: posts,
+      data: mapPosts(posts, params.id),
       pagination: {
         total,
         page,

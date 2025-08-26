@@ -28,6 +28,7 @@ export async function createGoal(
     title: formData.get("title")?.toString() ?? "",
     description: formData.get("description")?.toString() ?? "",
     color: formData.get("color")?.toString() ?? "#000000",
+    emoji: formData.get("emoji")?.toString() ?? "⭐",
   };
 
   const parsed = goalSchema.safeParse(raw);
@@ -47,6 +48,7 @@ export async function createGoal(
         title: raw.title,
         description: raw.description,
         color: raw.color,
+        emoji: raw.emoji,
       },
       message: "Please correct the errors below.",
     };
@@ -63,6 +65,7 @@ export async function createGoal(
       title: parsed.data.title,
       description: parsed.data.description,
       color: parsed.data.color,
+      emoji: parsed.data.emoji,
     };
 
     await Goal.create({
@@ -86,6 +89,7 @@ export async function createGoal(
         title: raw.title,
         description: raw.description,
         color: raw.color,
+        emoji: raw.emoji,
       },
     };
   }
@@ -108,6 +112,7 @@ export async function updateGoal(
     title: formData.get("title")?.toString() ?? "",
     description: formData.get("description")?.toString() ?? "",
     color: formData.get("color")?.toString() ?? "#000000",
+    emoji: formData.get("emoji")?.toString() ?? "⭐",
   };
 
   const parsed = goalSchema.safeParse(raw);
@@ -145,6 +150,7 @@ export async function updateGoal(
       title: parsed.data.title,
       description: parsed.data.description,
       color: parsed.data.color,
+      emoji: parsed.data.emoji,
     };
 
     await Goal.findOneAndUpdate(
@@ -175,6 +181,7 @@ export async function updateGoal(
         title: raw.title,
         description: raw.description,
         color: raw.color,
+        emoji: raw.emoji,
       },
     };
   }

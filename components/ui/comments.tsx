@@ -70,8 +70,6 @@ const CommentsSection = ({ postId, postComments }: CommentsSectionProps) => {
 
       const data = await res.json();
 
-      console.log(data);
-
       if (!data.success) {
         // rollback
         setComments((prev) =>

@@ -86,6 +86,7 @@ export async function createPost(
         title: raw.title,
         content: raw.content,
         tags: raw.tags,
+        goalId: raw.goalId,
       },
     };
   }

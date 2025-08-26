@@ -7,6 +7,7 @@ export const goalSchema = z.object({
     message:
       "Invalid color format. Must be a 7-character hex code (e.g., #RRGGBB).",
   }),
+  emoji: z.emoji(),
 });
 
 export type GoalFormValues = z.infer<typeof goalSchema>;
@@ -18,6 +19,7 @@ export const updateGoalSchema = z.object({
     message:
       "Invalid color format. Must be a 7-character hex code (e.g., #RRGGBB).",
   }),
+  emoji: z.emoji(),
   goalId: z.string().min(1, "Goal ID is required"),
 });
 

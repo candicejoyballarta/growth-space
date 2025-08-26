@@ -21,6 +21,24 @@ const MainFeed = ({ latest, trending }: IMainFeed) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const renderPosts = (posts: ISocFeed["posts"]) => {
+    if (!posts || posts.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16 text-center text-gray-500">
+          <span className="text-4xl mb-3">📭</span>
+          <h3 className="text-lg font-semibold mb-1">
+            Nothing to see here… yet!
+          </h3>
+          <p className="text-sm">
+            Looks like there are no posts in this section. Check back later or
+            follow more people to fill your feed!
+          </p>
+        </div>
+      );
+    }
+    return <SocialFeed posts={posts} />;
+  };
+
   return (
     <Tabs defaultValue="latest">
       <TabsList
@@ -56,11 +74,11 @@ const MainFeed = ({ latest, trending }: IMainFeed) => {
       </TabsList>
 
       <TabsContent value="latest" className="space-y-4">
-        <SocialFeed posts={latest} />
+        {renderPosts(latest)}
       </TabsContent>
 
       <TabsContent value="trending" className="space-y-4">
-        <SocialFeed posts={trending} />
+        {renderPosts(trending)}
       </TabsContent>
     </Tabs>
   );

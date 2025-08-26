@@ -44,11 +44,6 @@ export default function ProfileCard() {
           <span>{profile?.following.length} Following</span>
         </div>
         <div className="flex flex-col gap-2">
-          <Button variant="secondary" asChild>
-            <Link href={`/dashboard/profile/${user?.id}/edit`}>
-              Edit Profile
-            </Link>
-          </Button>
           <Button variant="outline" asChild>
             <Link href="/dashboard/new">Create Post</Link>
           </Button>

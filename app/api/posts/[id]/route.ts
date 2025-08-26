@@ -21,7 +21,7 @@ export async function GET(req: Request, props: Params) {
 
     const post = await Post.findById(postId)
       .populate("author", "name image")
-      .populate("comments.author", "name image");
+      .populate("goal", "_id title");
 
     if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
@@ -111,6 +111,29 @@ export async function PATCH(
     console.error("PATCH error:", error);
     return NextResponse.json(
       { error: "Failed to update post" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: Request, props: Params) {
+  const params = await props.params;
+  const postId = params.id;
+
+  try {
+    await connectToDB();
+
+    const post = await Post.findByIdAndDelete(postId);
+
+    if (!post) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: "Post deleted successfully" });
+  } catch (error) {
+    console.error("[DELETE /api/posts/:id] Error:", error);
+    return NextResponse.json(
+      { error: "Failed to delete post" },
       { status: 500 }
     );
   }

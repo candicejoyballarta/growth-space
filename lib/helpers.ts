@@ -78,6 +78,7 @@ export function formatDate(date: string | Date): string {
 export function mapPost(post: any, loggedInUserId?: string) {
   return {
     user: {
+      _id: post.author?._id.toString() || "",
       name: post.author?.name ?? "Unknown",
       image: post.author?.image ?? "/profile.jpg",
     },
@@ -103,6 +104,15 @@ export function mapPost(post: any, loggedInUserId?: string) {
         }))
       : [],
     content: post.content,
+    goalId: post.goalId
+      ? {
+          _id: post.goalId._id,
+          title: post.goalId.title,
+          progress: post.goalId.progress,
+          color: post.goalId.color,
+          emoji: post.goalId.emoji,
+        }
+      : null,
     tags: Array.isArray(post.tags)
       ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
         post.tags.map((tag: any) =>

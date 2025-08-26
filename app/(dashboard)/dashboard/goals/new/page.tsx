@@ -12,17 +12,19 @@ import { createGoal } from "@/actions/goals";
 
 export default function NewGoalPage() {
   const router = useRouter();
-  const [color, setColor] = useState("#10b981");
+
+  const [color, setColor] = useState("#34D399");
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    emoji: "⭐",
+  });
 
   const [state, formAction] = useActionState(createGoal, {
     success: false,
     message: "",
     errors: {},
-    formValues: {
-      title: "",
-      description: "",
-      color: "",
-    },
+    formValues: formData,
   });
 
   useEffect(() => {
@@ -32,44 +34,92 @@ export default function NewGoalPage() {
     }
   }, [state.success, router]);
 
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <Card>
+    <div className="max-w-xl mx-auto p-6">
+      <Card className="shadow-lg">
         <CardHeader>
           <CardTitle>Create a New Goal</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="space-y-4" action={formAction}>
-            <Input placeholder="Goal Title" name="title" required />
-            <textarea
-              placeholder="Description (optional)"
-              name="description"
-              className={cn(
-                "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-24 w-full min-w-0 rounded-md border bg-transparent px-3 py-3 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-                "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-                "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
-              )}
-            />
+          <form className="space-y-6" action={formAction}>
+            {/* Title */}
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="title" className="text-sm font-medium">
+                Goal Title <span className="text-red-500">*</span>
+              </label>
+              <Input
+                id="title"
+                name="title"
+                placeholder="Enter your goal title"
+                required
+                value={formData.title}
+                onChange={(e) => handleChange("title", e.target.value)}
+              />
+            </div>
+
+            {/* Description */}
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="description" className="text-sm font-medium">
+                Description (optional)
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                placeholder="Describe your goal"
+                className={cn(
+                  "w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-sm transition focus-visible:border-green-600 focus-visible:ring focus-visible:ring-green-200 outline-none",
+                  "resize-none"
+                )}
+                rows={4}
+                value={formData.description}
+                onChange={(e) => handleChange("description", e.target.value)}
+              />
+            </div>
+
+            {/* Emoji */}
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="emoji" className="text-sm font-medium">
+                Emoji (optional)
+              </label>
+              <Input
+                id="emoji"
+                name="emoji"
+                placeholder="⭐"
+                value={formData.emoji}
+                onChange={(e) => handleChange("emoji", e.target.value)}
+                className="w-24 text-center"
+              />
+            </div>
 
             {/* Color Picker */}
-            <ColorPicker color={color} setColor={setColor} />
+            <div className="flex flex-col space-y-2">
+              <span className="text-sm font-medium">Pick a Color</span>
+              <ColorPicker color={color} setColor={setColor} />
+            </div>
 
             {/* Error Messages */}
             {state.message && !state.success && (
-              <div className="mb-4 rounded-md bg-red-50 border border-red-300 p-3">
+              <div className="rounded-md bg-red-50 border border-red-300 p-3">
                 <p className="text-sm font-medium text-red-700 mb-2">
                   {state.message}
                 </p>
-                <ul className="list-disc list-inside text-sm text-red-600 space-y-1">
-                  {Object.values(state.errors).map((msg, i) => (
-                    <li key={i}>{msg}</li>
-                  ))}
-                </ul>
+                {Object.values(state.errors).length > 0 && (
+                  <ul className="list-disc list-inside text-sm text-red-600 space-y-1">
+                    {Object.values(state.errors).map((msg, i) => (
+                      <li key={i}>{msg}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
             )}
 
+            {/* Submit Button */}
             <Button type="submit" className="w-full">
-              {"Create Goal"}
+              Create Goal
             </Button>
           </form>
         </CardContent>

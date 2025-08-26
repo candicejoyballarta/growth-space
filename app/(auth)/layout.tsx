@@ -1,7 +1,14 @@
+import { Toaster } from "react-hot-toast";
+
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <main>{children}</main>;
+  return (
+    <div>
+      <main>{children}</main>
+      <Toaster />
+    </div>
+  );
 }

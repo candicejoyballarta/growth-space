@@ -9,8 +9,9 @@ export async function GET() {
     const tags = await Post.aggregate([
       { $unwind: "$tags" },
       { $group: { _id: "$tags", count: { $sum: 1 } } },
+      { $project: { _id: 0, tag: "$_id", count: 1 } },
       { $sort: { count: -1 } },
-      { $limit: 10 },
+      { $limit: 7 },
     ]);
 
     return NextResponse.json(tags);

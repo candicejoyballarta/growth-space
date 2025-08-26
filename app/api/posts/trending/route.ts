@@ -4,6 +4,7 @@ import { Post } from "@/models/Post";
 import { mapPosts } from "@/lib/helpers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { Goal } from "@/models/Goal";
 
 export async function GET() {
   try {
@@ -20,6 +21,11 @@ export async function GET() {
     const posts = await Post.find({ createdAt: { $gte: oneWeekAgo } })
       .sort({ likes: -1 })
       .populate("author", "name image")
+      .populate({
+        path: "goalId",
+        select: "title progress color emoji",
+        model: Goal,
+      })
       .limit(10)
       .lean();
 
