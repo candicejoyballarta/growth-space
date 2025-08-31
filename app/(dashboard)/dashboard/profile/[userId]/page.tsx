@@ -9,6 +9,8 @@ import Image from "next/image";
 import PeopleYouMayKnowCard from "@/components/widgets/PeopleYouMayKnowCard";
 import PopularTags from "@/components/widgets/PopularTags";
 import { cookies } from "next/headers";
+import toast from "react-hot-toast";
+import FollowButton from "@/components/ui/follow-button";
 
 interface ProfilePageProps {
   params: Promise<{ userId: string }>;
@@ -18,6 +20,7 @@ export default async function ProfilePage(props: ProfilePageProps) {
   const params = await props.params;
   const { userId } = params;
   const session = await getServerSession(authOptions);
+  const loggedInUserId = session?.user?.id;
   const cookieStore = await cookies();
 
   const res = await fetch(
@@ -39,7 +42,7 @@ export default async function ProfilePage(props: ProfilePageProps) {
       {/* Left/Main Column */}
       <div className="md:col-span-2 space-y-6">
         {/* Cover Image */}
-        <div className="h-48 w-full bg-gray-200 rounded-lg relative">
+        <div className="h-48 w-full bg-gray-200 dark:border-gray-800 rounded-lg relative">
           {user.coverImage && (
             <Image
               fill
@@ -49,7 +52,7 @@ export default async function ProfilePage(props: ProfilePageProps) {
             />
           )}
           <div className="absolute bottom-0 left-6 transform translate-y-1/2 flex items-center gap-4">
-            <Avatar className="w-36 h-36 border-4 border-white">
+            <Avatar className="w-36 h-36 border-4 border-white dark:border-gray-800 shadow-md">
               <AvatarImage src={user.image || "/profile.jpg"} alt={user.name} />
               <AvatarFallback>{user.name[0]}</AvatarFallback>
             </Avatar>
@@ -64,8 +67,10 @@ export default async function ProfilePage(props: ProfilePageProps) {
         <div className="flex justify-end gap-2">
           {userId !== session?.user?.id ? (
             <>
-              <Button variant="outline">Follow</Button>
-              <Button>Message</Button>
+              <FollowButton
+                loggedInUserId={loggedInUserId}
+                followeeId={userId}
+              />
             </>
           ) : (
             <Button variant="outline" asChild>
@@ -77,7 +82,7 @@ export default async function ProfilePage(props: ProfilePageProps) {
         </div>
 
         {/* Stats */}
-        <div className="flex justify-center gap-16 border-b border-gray-200 pb-4">
+        <div className="flex justify-center gap-16 border-b border-gray-200 dark:border-gray-700 pb-4">
           {[
             { label: "Posts", value: posts.length, href: "#posts" },
             {
@@ -96,10 +101,10 @@ export default async function ProfilePage(props: ProfilePageProps) {
               href={stat.href}
               className="relative text-center group"
             >
-              <p className="font-semibold text-xl text-gray-900 group-hover:text-green-600 transition-colors">
+              <p className="font-semibold text-xl text-gray-900 dark:text-gray-100 group-hover:text-green-600 transition-colors">
                 {stat.value}
               </p>
-              <p className="text-sm text-gray-500 group-hover:text-green-600 transition-colors">
+              <p className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-green-600 transition-colors">
                 {stat.label}
               </p>
 
@@ -111,13 +116,28 @@ export default async function ProfilePage(props: ProfilePageProps) {
 
         {/* Tabs */}
         <Tabs defaultValue="posts">
-          <TabsList className="border-b border-gray-200 mb-4">
-            <TabsTrigger value="posts">Posts</TabsTrigger>
-            <TabsTrigger value="about">About</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsList className="border-b border-gray-200 mb-4 bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 dark:border-gray-700">
+            <TabsTrigger
+              value="posts"
+              className="dark:text-gray-200 dark:active:text-white dark:data-[state=active]:dark:bg-gray-700"
+            >
+              Posts
+            </TabsTrigger>
+            <TabsTrigger
+              value="about"
+              className="dark:text-gray-200 dark:active:text-white dark:data-[state=active]:dark:bg-gray-700"
+            >
+              About
+            </TabsTrigger>
+            <TabsTrigger
+              value="activity"
+              className="dark:text-gray-200 dark:active:text-white dark:data-[state=active]:dark:bg-gray-700"
+            >
+              Activity
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="posts">
+          <TabsContent value="posts" id="posts">
             {posts.length > 0 ? (
               <SocialFeed posts={posts} />
             ) : (
@@ -126,16 +146,52 @@ export default async function ProfilePage(props: ProfilePageProps) {
           </TabsContent>
 
           <TabsContent value="about">
-            <div className="space-y-3">
-              <p>
-                <strong>Name:</strong> {user.name}
-              </p>
-              <p>
-                <strong>Email:</strong> {user.email}
-              </p>
-              <p>
-                <strong>Bio:</strong> {user.bio || "No bio provided"}
-              </p>
+            <div className="space-y-6">
+              {/* Bio */}
+              <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm">
+                <h3 className="font-semibold mb-1 text-gray-900 dark:text-gray-100">
+                  Bio
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300">
+                  {user.bio || "No bio provided"}
+                </p>
+              </div>
+
+              {/* Growth Areas */}
+              {user.growthAreas?.length > 0 && (
+                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm">
+                  <h3 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">
+                    Growth Areas
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {user.growthAreas.map((area: string, idx: number) => (
+                      <span
+                        key={idx}
+                        className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 text-xs font-medium px-2 py-1 rounded-full"
+                      >
+                        {area}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Intentions */}
+              {user.intentions && (
+                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm">
+                  <h3 className="font-semibold mb-1 text-gray-900 dark:text-gray-100">
+                    Intentions
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    {user.intentions}
+                  </p>
+                </div>
+              )}
+
+              {/* Join Date */}
+              <div className="text-gray-400 dark:text-gray-400 text-sm">
+                Joined: {new Date(user.createdAt).toLocaleDateString()}
+              </div>
             </div>
           </TabsContent>
 

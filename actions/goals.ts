@@ -1,13 +1,15 @@
 "use server";
 
 import { authOptions } from "@/lib/auth";
+import { toPlainObject } from "@/lib/helpers";
 import { connectToDB } from "@/lib/mongoose";
 import {
   GoalFormValues,
   goalSchema,
   UpdateGoalFormValues,
 } from "@/lib/validators/goals";
-import { Goal } from "@/models/Goal";
+import { Activity } from "@/models/Activity";
+import { Goal, IMilestone } from "@/models/Goal";
 import { User } from "@/models/User";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
@@ -68,9 +70,15 @@ export async function createGoal(
       emoji: parsed.data.emoji,
     };
 
-    await Goal.create({
+    const goal = await Goal.create({
       ...goalData,
       user: user?._id,
+    });
+
+    await Activity.create({
+      user: user._id,
+      type: "GOAL_CREATED",
+      metadata: { goalId: goal._id, title: goal.title },
     });
 
     return {
@@ -209,6 +217,120 @@ export async function deletePost(prevState: GoalState, goalId: string) {
     return {
       success: false,
       message: "Failed to delete goal.",
+      errors: {},
+    };
+  }
+}
+
+export async function toggleGoalStatus(goalId: string) {
+  await connectToDB();
+
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) throw new Error("Unauthorized");
+
+  const goal = await Goal.findById(goalId);
+  if (!goal) throw new Error("Goal not found");
+
+  goal.status = goal.status === "active" ? "archived" : "active";
+
+  if (goal.status === "active") {
+    goal.completedAt = undefined; // reset if reopening
+  }
+
+  await goal.save();
+  revalidatePath("/");
+
+  return {
+    success: true,
+    message: "Goal status updated.",
+  };
+}
+
+export async function addMilestone(
+  goalId: string,
+  title: string,
+  dueDate?: Date
+) {
+  try {
+    await connectToDB();
+
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) throw new Error("Unauthorized");
+
+    const goal = await Goal.findById(goalId);
+    if (!goal) throw new Error("Goal not found");
+
+    goal.milestones.push({
+      title,
+      dueDate,
+      completed: false,
+      completedAt: undefined,
+    });
+
+    await goal.save();
+    revalidatePath("/");
+
+    return {
+      success: true,
+      message: "Milestone added.",
+      goal: toPlainObject(goal),
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Failed to add milestone.",
+      errors: {},
+    };
+  }
+}
+
+export async function toggleMilestoneCompletion(
+  goalId: string,
+  milestoneId: string
+) {
+  try {
+    await connectToDB();
+
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) throw new Error("Unauthorized");
+
+    const user = await User.findOne({ email: session.user.email });
+    if (!user) throw new Error("User not found");
+
+    const goal = await Goal.findById(goalId);
+    if (!goal) throw new Error("Goal not found");
+
+    const milestone = goal.milestones.id(milestoneId);
+    if (!milestone) throw new Error("Milestone not found");
+
+    milestone.completed = !milestone.completed;
+    milestone.completedAt = milestone.completed ? new Date() : undefined;
+
+    if (milestone.completed) {
+      user.streak = (user.streak || 0) + 1;
+    } else {
+      user.streak = Math.max((user.streak || 0) - 1, 0);
+    }
+
+    const allCompleted =
+      goal.milestones.length > 0 &&
+      goal.milestones.every((m: IMilestone) => m.completed);
+
+    goal.completedAt = allCompleted ? new Date() : undefined;
+    goal.status = allCompleted ? "completed" : goal.status;
+
+    await Promise.all([goal.save(), user.save()]);
+    revalidatePath("/");
+
+    return {
+      success: true,
+      message: "Milestone status updated.",
+      goal: toPlainObject(goal),
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Failed to update milestone.",
       errors: {},
     };
   }

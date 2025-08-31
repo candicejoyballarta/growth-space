@@ -28,7 +28,7 @@ const UserTopTags = async ({ userId }: IUserTopTags) => {
   const topUsedTags: Tag[] = await res.json();
 
   return (
-    <Card>
+    <Card className="shadow-md rounded-2xl border border-gray-200 bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 dark:border-gray-700">
       <CardHeader>
         <CardTitle>Top Tags</CardTitle>
       </CardHeader>
@@ -36,7 +36,7 @@ const UserTopTags = async ({ userId }: IUserTopTags) => {
         {topUsedTags.length > 0 ? (
           topUsedTags.map((t, i) => (
             <Link href={`/tags/${t.tag}`} key={i}>
-              <div className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs cursor-pointer hover:bg-green-200">
+              <div className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs cursor-pointer hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800 transition-colors">
                 <span className="font-medium">#{t.tag}</span>
                 <span className="bg-green-200 text-green-800 px-2 py-0.5 rounded-full text-[10px]">
                   {t.count}

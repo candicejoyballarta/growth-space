@@ -32,7 +32,7 @@ export default function ProfileForm({
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center text-green-600">
+      <div className="flex min-h-[60vh] items-center justify-center text-green-600 dark:text-green-400">
         <Loader2 className="animate-spin h-6 w-6 mr-2" /> Loading profile...
       </div>
     );
@@ -59,7 +59,6 @@ export default function ProfileForm({
       await update(updatedValues);
     }
 
-    // revalidate from server
     refresh();
   };
 
@@ -96,16 +95,18 @@ export default function ProfileForm({
           />
         </div>
         <div>
-          <h2 className="text-2xl font-semibold">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
             {state.formValues?.name || profile?.name}
           </h2>
-          <p className="text-gray-600">{profile?.email}</p>
+          <p className="text-gray-600 dark:text-gray-400">{profile?.email}</p>
         </div>
       </div>
 
       {/* Name */}
       <div>
-        <label className="block text-sm font-medium mb-1">Name</label>
+        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+          Name
+        </label>
         <Input
           type="text"
           placeholder="Enter your name"
@@ -116,9 +117,11 @@ export default function ProfileForm({
 
       {/* Bio */}
       <div>
-        <label className="block text-sm font-medium mb-1">Bio</label>
+        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+          Bio
+        </label>
         <textarea
-          className="w-full border border-gray-300 rounded-md p-2"
+          className="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           placeholder="Tell us about yourself"
           name="bio"
           defaultValue={state.formValues?.bio || profile?.bio || ""}
@@ -127,11 +130,10 @@ export default function ProfileForm({
 
       {/* Cover Image */}
       <div>
-        <label className="block mb-2 font-medium text-gray-700">
+        <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
           Cover Image
         </label>
 
-        {/* Hidden file input */}
         <input
           type="file"
           id="coverInput"
@@ -141,8 +143,7 @@ export default function ProfileForm({
           className="hidden"
         />
 
-        {/* Cover preview container */}
-        <div className="relative w-full h-40 rounded-md overflow-hidden border border-gray-200 group cursor-pointer">
+        <div className="relative w-full h-40 rounded-md overflow-hidden border border-gray-200 dark:border-gray-700 group cursor-pointer">
           <Image
             fill
             src={coverPreview || profile?.coverImage || "/default-cover.jpg"}
@@ -150,13 +151,12 @@ export default function ProfileForm({
             className="object-cover"
           />
 
-          {/* Overlay */}
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
             <label
               htmlFor="coverInput"
-              className="flex items-center gap-2 px-4 py-2 bg-white text-sm font-medium rounded-md shadow cursor-pointer hover:bg-gray-100"
+              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-sm font-medium rounded-md shadow cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200"
             >
-              <Pencil className="w-4 h-4 text-gray-600" />
+              <Pencil className="w-4 h-4 text-gray-600 dark:text-gray-300" />
               Change Cover
             </label>
           </div>
@@ -165,11 +165,11 @@ export default function ProfileForm({
 
       {/* Error Messages */}
       {state.message && !state.success && (
-        <div className="mb-4 rounded-md bg-red-50 border border-red-300 p-3">
-          <p className="text-sm font-medium text-red-700 mb-2">
+        <div className="mb-4 rounded-md bg-red-50 dark:bg-red-900/30 border border-red-300 dark:border-red-700 p-3">
+          <p className="text-sm font-medium text-red-700 dark:text-red-400 mb-2">
             {state.message}
           </p>
-          <ul className="list-disc list-inside text-sm text-red-600 space-y-1">
+          <ul className="list-disc list-inside text-sm text-red-600 dark:text-red-400 space-y-1">
             {Object.values(state.errors).map((msg, i) => (
               <li key={i}>{msg}</li>
             ))}
@@ -179,7 +179,7 @@ export default function ProfileForm({
 
       <Button
         type="submit"
-        className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700"
+        className="w-full bg-green-600 hover:bg-green-700 text-white dark:bg-green-500 dark:hover:bg-green-600"
       >
         Save Changes
       </Button>

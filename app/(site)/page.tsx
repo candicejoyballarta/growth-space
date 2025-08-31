@@ -19,13 +19,16 @@ export default function Home() {
   }, [status, router]);
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 transition-colors">
       <Herobar />
 
       {/* Features Section */}
-      <section className="py-20 px-6 bg-green-50" id="features">
+      <section
+        className="py-20 px-6 bg-green-50 dark:bg-green-950/30 transition-colors"
+        id="features"
+      >
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold mb-12 text-green-800">
+          <h2 className="text-3xl md:text-4xl font-semibold mb-12 text-green-800 dark:text-green-400">
             Why Growth Space?
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -57,14 +60,16 @@ export default function Home() {
             ].map((feature, idx) => (
               <Card
                 key={idx}
-                className="bg-white shadow-md p-6 hover:shadow-xl transition duration-300"
+                className="bg-white dark:bg-gray-900 shadow-md p-6 hover:shadow-xl transition duration-300"
               >
                 <CardContent className="flex flex-col items-center text-center">
                   <div className="text-5xl mb-4">{feature.icon}</div>
                   <h3 className="text-xl font-semibold mb-2">
                     {feature.title}
                   </h3>
-                  <p className="text-sm text-gray-600">{feature.description}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {feature.description}
+                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -73,9 +78,12 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="bg-gray-50 py-20 px-6" id="how-it-works">
+      <section
+        className="bg-gray-50 dark:bg-gray-900 py-20 px-6 transition-colors"
+        id="how-it-works"
+      >
         <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold mb-12 text-gray-800">
+          <h2 className="text-3xl md:text-4xl font-semibold mb-12 text-gray-800 dark:text-gray-200">
             How It Works
           </h2>
           <div className="grid md:grid-cols-3 gap-10">
@@ -101,14 +109,16 @@ export default function Home() {
             ].map((item, idx) => (
               <Card
                 key={idx}
-                className="bg-white shadow-md p-6 hover:shadow-xl transition duration-300"
+                className="bg-white dark:bg-gray-900 shadow-md p-6 hover:shadow-xl transition duration-300"
               >
                 <CardContent className="flex flex-col items-center text-center">
-                  <div className="text-xl font-bold text-green-600 mb-2">
+                  <div className="text-xl font-bold text-green-600 dark:text-green-400 mb-2">
                     {item.step}
                   </div>
                   <h3 className="text-lg font-semibold mb-1">{item.title}</h3>
-                  <p className="text-sm text-gray-600">{item.description}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {item.description}
+                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -117,7 +127,7 @@ export default function Home() {
       </section>
 
       {/* Footer CTA */}
-      <section className="text-center py-16 px-6 bg-white">
+      <section className="text-center py-16 px-6 bg-white dark:bg-gray-950 transition-colors">
         <h2 className="text-2xl md:text-3xl font-bold mb-4">
           Ready to start growing?
         </h2>

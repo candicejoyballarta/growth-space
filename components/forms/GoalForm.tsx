@@ -43,15 +43,20 @@ export default function GoalForm({
   };
 
   return (
-    <Card className="max-w-xl mx-auto shadow-lg p-4">
+    <Card className="max-w-xl mx-auto shadow-lg p-4 bg-white dark:bg-gray-800 transition-colors">
       <CardHeader>
-        <CardTitle>{initialData ? "Edit Goal" : "Create a New Goal"}</CardTitle>
+        <CardTitle className="text-gray-900 dark:text-gray-100">
+          {initialData ? "Edit Goal" : "Create a New Goal"}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <form className="space-y-6" action={onSubmit}>
           {/* Title */}
           <div className="flex flex-col space-y-1">
-            <label htmlFor="title" className="text-sm font-medium">
+            <label
+              htmlFor="title"
+              className="text-sm font-medium text-gray-800 dark:text-gray-200"
+            >
               Goal Title <span className="text-red-500">*</span>
             </label>
             <Input
@@ -66,7 +71,10 @@ export default function GoalForm({
 
           {/* Description */}
           <div className="flex flex-col space-y-1">
-            <label htmlFor="description" className="text-sm font-medium">
+            <label
+              htmlFor="description"
+              className="text-sm font-medium text-gray-800 dark:text-gray-200"
+            >
               Description (optional)
             </label>
             <textarea
@@ -74,7 +82,7 @@ export default function GoalForm({
               name="description"
               placeholder="Describe your goal"
               className={cn(
-                "w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-sm transition focus-visible:border-green-600 focus-visible:ring focus-visible:ring-green-200 outline-none",
+                "w-full rounded-md border bg-transparent dark:bg-gray-700 dark:border-gray-600 px-3 py-2 text-base text-gray-900 dark:text-gray-100 shadow-sm transition focus-visible:border-green-600 focus-visible:ring focus-visible:ring-green-200 dark:focus-visible:ring-green-700 outline-none",
                 "resize-none"
               )}
               rows={4}
@@ -85,7 +93,10 @@ export default function GoalForm({
 
           {/* Emoji */}
           <div className="flex flex-col space-y-1">
-            <label htmlFor="emoji" className="text-sm font-medium">
+            <label
+              htmlFor="emoji"
+              className="text-sm font-medium text-gray-800 dark:text-gray-200"
+            >
               Emoji (optional)
             </label>
             <Input
@@ -100,22 +111,24 @@ export default function GoalForm({
 
           {/* Color Picker */}
           <div className="flex flex-col space-y-2">
-            <span className="text-sm font-medium">Pick a Color</span>
+            <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+              Pick a Color
+            </span>
             <ColorPicker color={color} setColor={setColor} />
           </div>
 
           {/* Live Preview */}
           <div
-            className="mt-4 p-5 rounded-2xl shadow-lg border border-gray-200 bg-gradient-to-br from-white to-green-50 text-left transition-all"
+            className="mt-4 p-5 rounded-2xl shadow-lg border text-left transition-all bg-gradient-to-br from-white to-green-50 dark:from-gray-700 dark:to-green-900/20"
             style={{ borderColor: color }}
           >
             <div className="flex items-center space-x-3 mb-2">
               <div className="text-3xl">{formData.emoji}</div>
-              <h3 className="text-xl font-bold text-gray-900 truncate">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 truncate">
                 {formData.title || "Goal Preview"}
               </h3>
             </div>
-            <p className="text-gray-700 text-sm">
+            <p className="text-gray-700 dark:text-gray-300 text-sm">
               {formData.description ||
                 "Your goal description will appear here."}
             </p>

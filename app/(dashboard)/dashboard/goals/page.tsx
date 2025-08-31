@@ -7,12 +7,14 @@ import { IMilestone } from "@/models/Goal";
 import Link from "next/link";
 import GoalCards from "@/components/ui/goal-card";
 import { Plus } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export type IGoal = {
   _id: string;
   title: string;
   description?: string;
   progress: number;
+  status: "active" | "archived";
   color: string;
   emoji: string;
   user: {
@@ -24,15 +26,18 @@ export type IGoal = {
 };
 
 export default function GoalsPage() {
+  const { user } = useAuth();
   const [goals, setGoals] = useState<IGoal[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user?.id) return;
+
     const fetchGoals = async () => {
       try {
-        const res = await fetch("/api/goals");
-        const { data } = await res.json();
-        setGoals(data);
+        const res = await fetch(`/api/users/${user?.id}/goals`);
+        const data = await res.json();
+        setGoals(data || []);
       } catch (err) {
         console.error("Failed to fetch goals:", err);
         toast.error("Failed to fetch goals");
@@ -41,7 +46,7 @@ export default function GoalsPage() {
       }
     };
     fetchGoals();
-  }, []);
+  }, [user?.id]);
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">

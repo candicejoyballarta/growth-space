@@ -7,7 +7,11 @@ import Link from "next/link";
 export default function Herobar() {
   return (
     <motion.section
-      className="relative w-full min-h-[60vh] flex items-center justify-center bg-gradient-to-r from-green-400 via-emerald-500 to-green-600 text-white overflow-hidden"
+      className="
+  relative w-full min-h-[60vh] flex items-center justify-center 
+  bg-gradient-to-r from-[#4CAF50] via-[#2ECC71] to-[#27AE60] text-white overflow-hidden
+  dark:from-[#1B5E20] dark:via-[#2E7D32] dark:to-[#388E3C]
+"
       initial={{ opacity: 0, x: -50 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.8 }}
@@ -38,13 +42,17 @@ export default function Herobar() {
         >
           <Button
             size="lg"
-            className="bg-white text-green-600 hover:bg-gray-100"
+            className="bg-white text-[#27AE60] hover:bg-gray-100 dark:bg-black dark:text-green-400"
             asChild
           >
             <Link href="/signup">Get Started</Link>
           </Button>
-          <Button size="lg" className="border-white text-white" asChild>
-            <Link href="about">Learn More</Link>
+          <Button
+            size="lg"
+            className="border-white text-white dark:text-black"
+            asChild
+          >
+            <Link href="/about">Learn More</Link>
           </Button>
         </motion.div>
       </div>

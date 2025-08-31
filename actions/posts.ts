@@ -1,6 +1,7 @@
 "use server";
 import { connectToDB } from "@/lib/mongoose";
 import { postSchema, PostFormValues } from "@/lib/validators/posts";
+import { Activity } from "@/models/Activity";
 import { Post } from "@/models/Post";
 import { User } from "@/models/User";
 import { getServerSession } from "next-auth";
@@ -65,9 +66,15 @@ export async function createPost(
       tags: parsed.data.tags,
     };
 
-    await Post.create({
+    const post = await Post.create({
       ...postData,
       author: user?._id,
+    });
+
+    await Activity.create({
+      user: user._id,
+      type: "POST_ADDED",
+      metadata: { postId: post._id, title: post.title },
     });
 
     return {

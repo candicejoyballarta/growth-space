@@ -68,7 +68,7 @@ const HighlightPost = () => {
         </div>
 
         <Link
-          href={`/posts/${data.id}`}
+          href={`/posts/${data._id}`}
           className="block text-xs text-blue-600 hover:underline mt-2"
         >
           Read more →

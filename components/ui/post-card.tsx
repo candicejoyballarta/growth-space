@@ -100,7 +100,7 @@ const PostCard = ({ post, loading, setLoading }: PostCardProps) => {
   };
 
   return (
-    <Card className="shadow-sm rounded-lg gap-2 border border-gray-200 hover:shadow-md transition-shadow">
+    <Card className="shadow-sm rounded-lg gap-2 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow bg-white dark:bg-gray-800">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="flex items-center gap-3">
           <Image
@@ -111,8 +111,10 @@ const PostCard = ({ post, loading, setLoading }: PostCardProps) => {
             className="h-10 w-10 rounded-full object-cover"
           />
           <div>
-            <p className="font-medium leading-tight">{post.user.name}</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="font-medium leading-tight text-gray-900 dark:text-gray-100">
+              {post.user.name}
+            </p>
+            <p className="text-xs text-muted-foreground dark:text-gray-400">
               {formatDate(post.timestamp)}
             </p>
           </div>
@@ -122,10 +124,13 @@ const PostCard = ({ post, loading, setLoading }: PostCardProps) => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size="icon" variant="ghost" className="rounded-full">
-              <MoreVertical className="h-5 w-5" />
+              <MoreVertical className="h-5 w-5 text-gray-700 dark:text-gray-200" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent
+            align="end"
+            className="dark:bg-gray-700 dark:text-gray-100"
+          >
             <DropdownMenuItem asChild>
               <Link href={`/dashboard/posts/${post.id}/edit`}>Edit</Link>
             </DropdownMenuItem>
@@ -142,7 +147,9 @@ const PostCard = ({ post, loading, setLoading }: PostCardProps) => {
       {/* Content */}
       <CardContent className="space-y-3">
         {post.title && (
-          <h3 className="text-base font-semibold">{post.title}</h3>
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+            {post.title}
+          </h3>
         )}
 
         <PostContent content={post.content} />
@@ -156,7 +163,7 @@ const PostCard = ({ post, loading, setLoading }: PostCardProps) => {
             {post.tags.map((tag, i) => (
               <span
                 key={i}
-                className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full"
+                className="px-2 py-1 text-xs bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-full"
               >
                 {tag}
               </span>
@@ -165,11 +172,13 @@ const PostCard = ({ post, loading, setLoading }: PostCardProps) => {
         )}
 
         {/* Engagement */}
-        <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+        <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-700">
           <button
             onClick={toggleLike}
             className={`flex items-center gap-1 text-sm transition ${
-              liked ? "text-red-500" : "text-gray-500 hover:text-red-500"
+              liked
+                ? "text-red-500"
+                : "text-gray-500 dark:text-gray-300 hover:text-red-500"
             }`}
           >
             <Heart
@@ -180,7 +189,7 @@ const PostCard = ({ post, loading, setLoading }: PostCardProps) => {
 
           <button
             onClick={() => setShowComments((prev) => !prev)}
-            className="flex items-center gap-1 text-sm text-gray-500 hover:text-green-600 transition"
+            className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-300 hover:text-green-600 transition"
           >
             <MessageCircle className="h-4 w-4" /> {post.comments?.length}
           </button>

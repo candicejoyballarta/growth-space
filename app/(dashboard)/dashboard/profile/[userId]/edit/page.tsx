@@ -54,7 +54,7 @@ export default function ProfilePage() {
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center text-green-600">
+      <div className="flex min-h-[60vh] items-center justify-center text-green-600 dark:text-green-400">
         <Loader2 className="animate-spin h-6 w-6 mr-2" /> Loading profile...
       </div>
     );
@@ -62,15 +62,17 @@ export default function ProfilePage() {
 
   if (!session) {
     return (
-      <div className="text-center py-20 text-red-600">
+      <div className="text-center py-20 text-red-600 dark:text-red-400">
         You must be logged in to view this page.
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md border border-green-100">
-      <h1 className="text-2xl font-bold text-green-700 mb-6">My Profile</h1>
+    <div className="max-w-2xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-xl shadow-md border border-green-100 dark:border-green-900">
+      <h1 className="text-2xl font-bold text-green-700 dark:text-green-400 mb-6">
+        My Profile
+      </h1>
 
       <ProfileForm
         state={state}

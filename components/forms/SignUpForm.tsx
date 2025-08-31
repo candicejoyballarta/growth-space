@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { SignupState } from "@/actions/signup";
+import { SignupState } from "@/actions/auth";
 
 type SignUpFormProps = {
   state: SignupState;
@@ -14,7 +14,7 @@ export default function SignUpForm({ state, action }: SignUpFormProps) {
       <div>
         <label
           htmlFor="name"
-          className="block text-sm font-medium text-gray-700 mb-1"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
         >
           Name
         </label>
@@ -31,7 +31,7 @@ export default function SignUpForm({ state, action }: SignUpFormProps) {
       <div>
         <label
           htmlFor="email"
-          className="block text-sm font-medium text-gray-700 mb-1"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
         >
           Email
         </label>
@@ -48,7 +48,7 @@ export default function SignUpForm({ state, action }: SignUpFormProps) {
       <div>
         <label
           htmlFor="password"
-          className="block text-sm font-medium text-gray-700 mb-1"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
         >
           Password
         </label>
@@ -62,11 +62,11 @@ export default function SignUpForm({ state, action }: SignUpFormProps) {
 
       {/* General Error (bulleted list) */}
       {state.message && !state.success && (
-        <div className="mb-4 rounded-md bg-red-50 border border-red-300 p-3">
-          <p className="text-sm font-medium text-red-700 mb-2">
+        <div className="mb-4 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 p-3">
+          <p className="text-sm font-medium text-red-700 dark:text-red-400 mb-2">
             {state.message}
           </p>
-          <ul className="list-disc list-inside text-sm text-red-600 space-y-1">
+          <ul className="list-disc list-inside text-sm text-red-600 dark:text-red-400 space-y-1">
             {Object.values(state.errors).map((msg, i) => (
               <li key={i}>{msg}</li>
             ))}

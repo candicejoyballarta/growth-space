@@ -1,6 +1,7 @@
 import { createElement, CSSProperties, JSX } from "react";
 import parse, { domToReact, HTMLReactParserOptions } from "html-react-parser";
 import { Types } from "mongoose";
+import { ActivityType } from "@/models/Activity";
 
 interface IHTMLModifier {
   matcher: string;
@@ -126,4 +127,84 @@ export function mapPost(post: any, loggedInUserId?: string) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapPosts(posts: any[], loggedInUserId?: string) {
   return posts.map((p) => mapPost(p, loggedInUserId));
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function toPlainObject(doc: any) {
+  return JSON.parse(
+    JSON.stringify(doc, (_, value) => {
+      if (value instanceof Types.ObjectId) {
+        return value.toString(); // convert ObjectId → string
+      }
+      if (value instanceof Date) {
+        return value.toISOString(); // convert Date → string
+      }
+      return value;
+    })
+  );
+}
+
+export function getStartOfWeek(date = new Date()) {
+  const d = new Date(date);
+  const day = d.getDay(); // Sun = 0, Mon = 1, ...
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when Sunday
+  return new Date(d.setDate(diff));
+}
+
+export const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+export function capitalizeFirstLetter(string: string) {
+  if (!string) {
+    // Handle empty or invalid input
+    return "";
+  }
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+interface SignupPayload {
+  email?: string;
+}
+
+interface GoalPayload {
+  title?: string;
+}
+
+export function formatActivityText(
+  type: ActivityType,
+  payload?: SignupPayload | GoalPayload
+) {
+  switch (type) {
+    case "SIGNUP":
+      return payload && "email" in payload
+        ? `New signup: ${payload.email}`
+        : "New user signed up";
+    case "LOGIN":
+      return payload && "email" in payload
+        ? `User login: ${payload.email}`
+        : "User logged in";
+    case "GOAL_COMPLETED":
+      return payload && "title" in payload
+        ? `Goal completed: '${payload.title}'`
+        : "Goal completed";
+    case "GOAL_CREATED":
+      return payload && "title" in payload
+        ? `Goal created: '${payload.title}'`
+        : "Goal created";
+    case "POST_ADDED":
+      return payload && "title" in payload
+        ? `Post added: '${payload.title}'`
+        : "Post added";
+    default:
+      return type;
+  }
+}
+
+export function formatNumber(value: number): string {
+  if (Number.isInteger(value)) {
+    return value.toString(); // Return whole number if no decimals
+  }
+  return value.toLocaleString(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
 }

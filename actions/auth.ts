@@ -8,6 +8,7 @@ import { User } from "@/models/User";
 
 import { redirect } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { Activity } from "@/models/Activity";
 
 export interface LoginState {
   success: boolean;
@@ -103,12 +104,20 @@ export async function signup(
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await User.create({
+    const user = await User.create({
       name,
       email,
       password: hashedPassword,
       avatar: "/profile.jpg",
       coverImage: "/default-cover.jpg",
+    });
+
+    await Activity.create({
+      user: user._id,
+      type: "SIGNUP",
+      metadata: {
+        email: email,
+      },
     });
 
     return {
@@ -125,10 +134,4 @@ export async function signup(
       errors: {},
     };
   }
-}
-function signIn(
-  arg0: string,
-  arg1: { email: string; password: string; redirectTo: string }
-) {
-  throw new Error("Function not implemented.");
 }

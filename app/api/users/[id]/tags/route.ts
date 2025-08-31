@@ -27,7 +27,7 @@ export async function GET(req: Request, props: Params) {
       // Normalize + count
       {
         $group: {
-          _id: { $toLower: { $trim: { input: "$tags" } } },
+          _id: "$tags",
           count: { $sum: 1 },
         },
       },

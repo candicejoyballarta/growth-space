@@ -35,32 +35,32 @@ const QOTDCard = () => {
 
   if (loading) {
     return (
-      <Card className="bg-gradient-to-br from-green-100 to-green-50 border-0 shadow-lg gap-3 animate-pulse">
+      <Card className="bg-gradient-to-br from-green-100 to-green-50 dark:from-gray-700 dark:to-gray-800 border-0 shadow-lg gap-3 animate-pulse">
         <CardHeader>
-          <CardTitle className="text-green-700 text-lg font-semibold">
+          <CardTitle className="text-green-700 dark:text-green-300 text-lg font-semibold">
             Loading Quote...
           </CardTitle>
         </CardHeader>
-        <CardContent className="h-20 bg-green-100 rounded-md" />
+        <CardContent className="h-20 bg-green-100 dark:bg-gray-700 rounded-md" />
       </Card>
     );
   }
 
   return (
-    <Card className="bg-gradient-to-br from-green-100 to-green-50 border-0 shadow-lg gap-3">
+    <Card className="bg-gradient-to-br from-green-100 to-green-50 dark:from-gray-700 dark:to-gray-800 border-0 shadow-lg gap-3">
       <CardHeader>
-        <CardTitle className="text-green-700 text-lg font-semibold">
+        <CardTitle className="text-green-700 dark:text-green-300 text-lg font-semibold">
           Quote of the Day 🌱
         </CardTitle>
       </CardHeader>
-      <CardContent className="relative text-gray-800 text-sm italic px-4 py-2">
-        <span className="absolute -top-3 -left-3 text-4xl text-green-200 font-bold">
+      <CardContent className="relative text-gray-800 dark:text-gray-200 text-sm italic px-4 py-2">
+        <span className="absolute -top-3 -left-3 text-4xl text-green-200 dark:text-green-500 font-bold">
           “
         </span>
         <p className="ml-2">
           {quote?.q} <span className="font-semibold">– {quote?.a}</span>
         </p>
-        <span className="absolute -bottom-3 -right-3 text-4xl text-green-200 font-bold rotate-180">
+        <span className="absolute -bottom-3 -right-3 text-4xl text-green-200 dark:text-green-500 font-bold rotate-180">
           ”
         </span>
       </CardContent>

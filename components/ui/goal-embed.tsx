@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/context/AuthContext";
+import { Progress } from "@radix-ui/react-progress";
 
 interface Goal {
   _id: string;
@@ -25,15 +25,13 @@ const GoalEmbed = ({ goal, userId }: GoalEmbedProps) => {
 
   return (
     <Link href={`/goals/${goal._id}`} className="block">
-      {/* Solid colored outline wrapper */}
+      {/* Colored border wrapper */}
       <div
         className="rounded-2xl p-[2px] transition-shadow hover:shadow-lg"
-        style={{
-          border: `1px solid ${goal.color}`,
-        }}
+        style={{ border: `1px solid ${goal.color}` }}
       >
         {/* Inner card */}
-        <div className="rounded-2xl bg-white p-5">
+        <div className="rounded-2xl bg-white dark:bg-gray-800 p-5">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-lg font-bold" style={{ color: goal.color }}>
               {goal.emoji} {goal.title}
@@ -46,12 +44,25 @@ const GoalEmbed = ({ goal, userId }: GoalEmbedProps) => {
           <div className="mb-3">
             <Progress
               value={goal.progress}
-              className="h-3 rounded-full"
-              style={{ backgroundColor: `${goal.color}20` }}
-            />
+              style={{
+                backgroundColor: "#e5e7eb",
+                height: 8,
+                borderRadius: 4,
+              }}
+            >
+              <div
+                style={{
+                  width: `${goal.progress}%`,
+                  backgroundColor: goal.color,
+                  height: "100%",
+                  borderRadius: 4,
+                  transition: "width 0.3s ease",
+                }}
+              />
+            </Progress>
           </div>
 
-          <p className="text-sm text-gray-700">
+          <p className="text-sm text-gray-700 dark:text-gray-300">
             {userId === currentUserId
               ? `You're crushing it! ${goal.progress}% done 🎯`
               : `Wow! They've completed ${goal.progress}% of this goal! 👏`}

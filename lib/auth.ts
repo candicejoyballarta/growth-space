@@ -38,6 +38,9 @@ export const authOptions: NextAuthOptions = {
           id: user._id.toString(),
           name: user.name,
           email: user.email,
+          image: user.image ?? null,
+          bio: user.bio ?? "",
+          role: user.role ?? "",
         };
       },
     }),
@@ -50,15 +53,17 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, trigger, session }) {
       // On initial sign-in
       if (user) {
-        token.id = user.id; // persist id
+        token.id = user.id;
         token.name = user.name;
         token.email = user.email;
+        token.role = user.role;
       }
 
       // On client-side session.update()
       if (trigger === "update" && session) {
         if (session.name) token.name = session.name;
         if (session.email) token.email = session.email;
+        if (session.role) token.role = session.role;
       }
 
       return token;
@@ -70,6 +75,7 @@ export const authOptions: NextAuthOptions = {
           (token as any).id ?? token.sub ?? (session.user as any).id;
         session.user.name = token.name as string;
         session.user.email = token.email as string;
+        session.user.role = token.role as string;
       }
       return session;
     },

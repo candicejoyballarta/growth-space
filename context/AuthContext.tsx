@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { getSession, signIn, signOut, useSession } from "next-auth/react";
 import { createContext, ReactNode, useContext } from "react";
 
 type UserData = {
@@ -36,6 +36,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         error:
           "The email or password you entered is incorrect. Please try again.",
       };
+    }
+
+    const freshSession = await getSession();
+
+    if (res?.ok && freshSession?.user?.id) {
+      try {
+        await fetch("/api/activity/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: freshSession.user.id }),
+        });
+      } catch (err) {
+        console.error("Failed to log login activity:", err);
+      }
     }
 
     return {};

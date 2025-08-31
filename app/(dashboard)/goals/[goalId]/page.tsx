@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Progress } from "@/components/ui/progress";
 import { CheckCircle, Circle } from "lucide-react";
 import QOTDCard from "@/components/widgets/QOTDCard";
 import HighlightPost from "@/components/widgets/HighlightPost";
 import PeopleYouMayKnowCard from "@/components/widgets/PeopleYouMayKnowCard";
+import { Progress } from "@radix-ui/react-progress";
 
 interface Milestone {
   _id: string;
@@ -83,7 +83,11 @@ const GoalPage = () => {
               <span>Progress</span>
               <span>{goal.progress}%</span>
             </div>
-            <Progress value={goal.progress} className="h-4 rounded-full" />
+            <Progress
+              value={goal.progress}
+              style={{ backgroundColor: goal.color }}
+              className="h-4 rounded-full"
+            />
           </div>
 
           <div className="space-y-2">

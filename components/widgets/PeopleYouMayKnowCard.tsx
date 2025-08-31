@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 const PeopleYouMayKnowCard = () => {
   const { user } = useAuth();
@@ -24,9 +25,7 @@ const PeopleYouMayKnowCard = () => {
       });
 
       if (res.ok) {
-        // Remove the followed user from suggestions
         setPeople((prev) => prev.filter((p) => p._id !== followeeId));
-
         toast.success("User successfully followed!");
       } else {
         toast.error("Failed to follow user. Please try again later");
@@ -55,8 +54,10 @@ const PeopleYouMayKnowCard = () => {
   }, [loggedInUserId]);
 
   return (
-    <div className="border p-4 rounded-lg bg-white shadow-sm">
-      <h3 className="text-lg font-semibold mb-3">People You May Know</h3>
+    <div className="border p-4 rounded-lg bg-white bg-gradient-to-br dark:from-gray-800 dark:to-gray-900">
+      <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">
+        People You May Know
+      </h3>
       <div className="space-y-3">
         {suggestedConnections.length > 0 ? (
           suggestedConnections.map((person) => (
@@ -64,16 +65,21 @@ const PeopleYouMayKnowCard = () => {
               key={person._id}
               className="flex items-center justify-between gap-2"
             >
-              <div className="flex items-center gap-2">
+              <Link
+                href={`/dashboard/profile/${person._id}`}
+                className="flex items-center gap-2"
+              >
                 <Avatar className="w-10 h-10">
                   <AvatarImage src={person?.image} />
                   <AvatarFallback>{person.name[0]}</AvatarFallback>
                 </Avatar>
-                <span className="text-sm">{person.name}</span>
-              </div>
+                <span className="text-sm text-gray-800 dark:text-gray-200">
+                  {person.name}
+                </span>
+              </Link>
               <Button
                 size="sm"
-                className="cursor-pointer"
+                className="cursor-pointer bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-700 dark:text-white dark:hover:bg-green-600"
                 onClick={() => handleFollowUser(person._id)}
               >
                 Follow
@@ -81,7 +87,7 @@ const PeopleYouMayKnowCard = () => {
             </div>
           ))
         ) : (
-          <div className="flex flex-col items-center justify-center text-center text-gray-500">
+          <div className="flex flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400">
             <p className="mb-2">No new suggestions at the moment.</p>
             <p>Follow more people to see suggestions here!</p>
           </div>
