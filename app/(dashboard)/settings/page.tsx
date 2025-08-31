@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/context/ThemeContext";
+import EmailSettings from "@/components/ui/email-settings";
 
 export default function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
@@ -15,21 +16,7 @@ export default function SettingsPage() {
       </h1>
 
       {/* Profile Settings */}
-      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-gray-900 dark:text-gray-100">
-            Profile Settings
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input placeholder="Full Name" defaultValue="Jane Doe" />
-            <Input placeholder="Username" defaultValue="janedoe" />
-            <Input placeholder="Email" defaultValue="jane.doe@example.com" />
-          </div>
-          <Button className="mt-2">Update Profile</Button>
-        </CardContent>
-      </Card>
+      <EmailSettings />
 
       {/* Account Settings */}
       <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">

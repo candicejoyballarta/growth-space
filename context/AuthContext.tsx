@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { getSession, signIn, signOut, useSession } from "next-auth/react";
-import { createContext, ReactNode, useContext } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 type UserData = {
   id: string;
@@ -17,12 +23,18 @@ type AuthContextType = {
   loading: boolean;
   login: (email: string, password: string) => Promise<any>;
   logout: () => void;
+  refreshUser: (newUser?: UserData | null) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
+  const [user, setUser] = useState<UserData | null>(session?.user || null);
+
+  useEffect(() => {
+    setUser(session?.user || null);
+  }, [session]);
 
   const login = async (email: string, password: string) => {
     const res = await signIn("credentials", {
@@ -57,6 +69,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => signOut();
 
+  const refreshUser = (newUser?: UserData | null) => {
+    if (newUser) setUser(newUser);
+    else getSession().then((s) => setUser(s?.user || null));
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -64,6 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loading: status === "loading",
         login,
         logout,
+        refreshUser,
       }}
     >
       {children}

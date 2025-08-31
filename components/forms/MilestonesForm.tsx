@@ -29,7 +29,6 @@ export default function MilestoneForm({ goalId }: { goalId: string }) {
     if (data.success) {
       setTitle("");
       setCompleted(false);
-      console.log("Updated milestones:", data.milestones);
     } else {
       alert("Failed to add milestone");
     }

@@ -16,6 +16,7 @@ export default function LoginPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -29,6 +30,7 @@ export default function LoginPage() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setLoading(true);
     const form = new FormData(e.currentTarget);
     const email = form.get("email") as string;
     const password = form.get("password") as string;
@@ -38,9 +40,11 @@ export default function LoginPage() {
     if (res.error) {
       setFormError(res.error);
     }
+
+    if (res.ok) setLoading(false);
   }
 
-  if (status === "loading") {
+  if (loading) {
     return <p>Loading...</p>;
   }
 

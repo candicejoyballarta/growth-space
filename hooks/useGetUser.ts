@@ -9,7 +9,7 @@ export function useGetUser(email?: string) {
   );
 
   return {
-    profile: data?.data?.[0] ?? null,
+    profile: data?.data?.[0] ?? email,
     loading: !error && !data,
     error,
     refresh: mutate,

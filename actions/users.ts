@@ -125,6 +125,14 @@ export async function updateProfile(
   }
 }
 
+export interface UpdateProfileState {
+  success: boolean;
+  message?: string;
+  errors: Partial<Record<keyof ProfileFormValues, string>>;
+  formValues?: Partial<ProfileFormValues>;
+  updatedSession?: Session;
+}
+
 export interface UpdateUserState {
   success: boolean;
   message?: string;

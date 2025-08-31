@@ -168,6 +168,14 @@ export default function Sidebar({ initialSession: session }: SidebarProps) {
             )}
           </nav>
 
+          <button
+            onClick={handleSignOut}
+            className="rounded-md bg-white/10 dark:bg-gray-700 p-2 hover:bg-white/20 dark:hover:bg-gray-600 flex-shrink-0"
+            title="Sign out"
+          >
+            <LogOut className="h-4 w-4 text-white dark:text-gray-200" />
+          </button>
+
           {/* User Info */}
           {session?.user ? (
             <div className="mt-6 flex items-center gap-3 border-t border-white/10 dark:border-gray-700 pt-4 px-2">

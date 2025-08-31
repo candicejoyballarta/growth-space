@@ -46,9 +46,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   session: { strategy: "jwt" },
-  pages: {
-    signIn: "/login",
-  },
+  pages: { signIn: "/login" },
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       // On initial sign-in
@@ -56,30 +54,49 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
-        token.role = user.role;
+        token.role = user.role ?? "";
+        token.bio = user.bio ?? "";
+        token.image = user.image ?? null;
       }
 
       // On client-side session.update()
-      if (trigger === "update" && session) {
-        if (session.name) token.name = session.name;
-        if (session.email) token.email = session.email;
-        if (session.role) token.role = session.role;
+      if (trigger === "update" && session?.user) {
+        const userData = session.user;
+        token.name = userData.name ?? token.name;
+        token.email = userData.email ?? token.email;
+        token.role = userData.role ?? token.role;
+        token.bio = userData.bio ?? token.bio;
+        token.image = userData.image ?? token.image;
+
+        // Persist email change to DB
+        if (token.id && token.email) {
+          try {
+            await User.findByIdAndUpdate(token.id, {
+              email: token.email,
+              emailVerified: false,
+            });
+          } catch (err) {
+            console.error("Failed to update user email in DB:", err);
+          }
+        }
       }
 
       return token;
     },
+
     async session({ session, token }) {
-      if (session.user) {
-        // Always use the id from token
-        (session.user as { id?: string }).id =
-          (token as any).id ?? token.sub ?? (session.user as any).id;
-        session.user.name = token.name as string;
-        session.user.email = token.email as string;
-        session.user.role = token.role as string;
-      }
+      if (!session.user) session.user = {} as any;
+
+      session.user.id = token.id as string;
+      session.user.name = (token.name as string) ?? "";
+      session.user.email = (token.email as string) ?? "";
+      session.user.role = (token.role as string) ?? "";
+      session.user.bio = (token.bio as string) ?? "";
+
       return session;
     },
   },
+  debug: process.env.NODE_ENV === "development",
 };
 
 export default NextAuth(authOptions);

@@ -15,8 +15,11 @@ export interface IUser extends Document {
   onboardingComplete: boolean;
   streak: number;
   status: "active" | "inactive";
+  emailVerified: boolean;
   createdAt: Date;
   lastLogin: Date;
+  verificationToken: string;
+  verificationTokenExpires: Date;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -35,8 +38,11 @@ const UserSchema = new Schema<IUser>(
     onboardingComplete: { type: Boolean, default: false },
     streak: { type: Number, default: 0 },
     status: { type: String, enum: ["active", "inactive"], default: "active" },
+    emailVerified: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
     lastLogin: { type: Date, default: Date.now },
+    verificationToken: { type: String },
+    verificationTokenExpires: { type: Date },
   },
   {
     timestamps: true,
