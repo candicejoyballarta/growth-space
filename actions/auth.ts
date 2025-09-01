@@ -5,10 +5,9 @@ import { loginSchema, LoginFormValues } from "@/lib/validators/login";
 import { signupSchema, SignupFormValues } from "@/lib/validators/signup";
 import { connectToDB } from "@/lib/mongoose";
 import { User } from "@/models/User";
-
-import { redirect } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
 import { Activity } from "@/models/Activity";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export interface LoginState {
   success: boolean;
@@ -131,6 +130,61 @@ export async function signup(
     return {
       success: false,
       message: "Something went wrong. Please try again later.",
+      errors: {},
+    };
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function updatePassword(prevState: any, formData: FormData) {
+  try {
+    await connectToDB();
+
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return {
+        success: false,
+        message: "Unauthorized",
+        errors: {},
+      };
+    }
+
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
+
+    if (!password || password.length < 8) {
+      return {
+        success: false,
+        message: "Password must be at least 8 characters long.",
+        errors: { password: "Too short" },
+      };
+    }
+
+    if (password !== confirmPassword) {
+      return {
+        success: false,
+        message: "Passwords do not match.",
+        errors: { confirmPassword: "Does not match" },
+      };
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await User.findOneAndUpdate(
+      { email: session.user.email },
+      { password: hashedPassword }
+    );
+
+    return {
+      success: true,
+      message: "Password updated successfully.",
+      errors: {},
+    };
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+      message: "Failed to update password.",
       errors: {},
     };
   }

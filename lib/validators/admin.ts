@@ -13,3 +13,12 @@ export const updateUserSchema = z.object({
 });
 
 export type UpdateUserFormValues = z.infer<typeof updateUserSchema>;
+
+export const createUserSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email"),
+  role: z.enum(["user", "admin"]).optional(),
+  status: z.enum(["active", "inactive"]).optional(),
+});
+
+export type CreateUserFormValues = z.infer<typeof createUserSchema>;

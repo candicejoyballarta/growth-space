@@ -7,7 +7,12 @@ import { getServerSession, Session } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { uploadImage } from "@/lib/cloudinary";
 import { revalidatePath } from "next/cache";
-import { UpdateUserFormValues, updateUserSchema } from "@/lib/validators/admin";
+import {
+  CreateUserFormValues,
+  createUserSchema,
+  UpdateUserFormValues,
+  updateUserSchema,
+} from "@/lib/validators/admin";
 
 export interface UpdateProfileState {
   success: boolean;
@@ -125,12 +130,97 @@ export async function updateProfile(
   }
 }
 
-export interface UpdateProfileState {
+export interface CreateUserState {
   success: boolean;
   message?: string;
-  errors: Partial<Record<keyof ProfileFormValues, string>>;
-  formValues?: Partial<ProfileFormValues>;
-  updatedSession?: Session;
+  data?: CreateUserFormValues;
+  errors: Partial<Record<keyof CreateUserFormValues, string>>;
+  formValues?: Partial<CreateUserFormValues>;
+}
+
+export async function adminCreateUser(
+  prevState: CreateUserState,
+  formData: FormData
+): Promise<CreateUserState> {
+  await connectToDB();
+
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) throw new Error("Unauthorized");
+
+  const adminUser = await User.findOne({ email: session.user.email });
+  if (!adminUser || adminUser.role !== "admin") {
+    throw new Error("Forbidden: Admins only");
+  }
+
+  // Parse form data
+  const raw = {
+    name: formData.get("name")?.toString() ?? "",
+    email: formData.get("email")?.toString() ?? "",
+    role: formData.get("role")?.toString() ?? "user",
+    status: formData.get("status")?.toString() ?? "active",
+  };
+
+  const parsed = createUserSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    const errors: CreateUserState["errors"] = {};
+    parsed.error.issues.forEach((e) => {
+      const key = e.path[0];
+      if (typeof key === "string") {
+        errors[key as keyof CreateUserFormValues] = e.message;
+      }
+    });
+
+    return {
+      success: false,
+      message: "Please correct the errors below:",
+      errors,
+      formValues: {
+        name: raw.name,
+        email: raw.email,
+        role:
+          raw.role === "admin" || raw.role === "user" ? raw.role : undefined,
+        status:
+          raw.status === "active" || raw.status === "inactive"
+            ? raw.status
+            : undefined,
+      },
+    };
+  }
+
+  const { name, email, role, status } = parsed.data;
+
+  try {
+    const userData: CreateUserFormValues = {
+      name,
+      email,
+      role,
+      status,
+    };
+
+    await User.create(userData);
+
+    return {
+      success: true,
+      message: "User updated successfully.",
+      errors: {},
+      data: userData,
+      formValues: {
+        name,
+        email,
+        role,
+        status,
+      },
+    };
+  } catch (err) {
+    console.error("[updateUser] Error:", err);
+    return {
+      success: false,
+      message: "Failed to update user.",
+      errors: {},
+      formValues: { name, email, role, status },
+    };
+  }
 }
 
 export interface UpdateUserState {
@@ -166,11 +256,11 @@ export async function adminUpdateUser(
   const parsed = updateUserSchema.safeParse(raw);
 
   if (!parsed.success) {
-    const errors: UpdateProfileState["errors"] = {};
+    const errors: UpdateUserState["errors"] = {};
     parsed.error.issues.forEach((e) => {
       const key = e.path[0];
       if (typeof key === "string") {
-        errors[key as keyof ProfileFormValues] = e.message;
+        errors[key as keyof UpdateUserFormValues] = e.message;
       }
     });
 

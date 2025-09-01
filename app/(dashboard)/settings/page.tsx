@@ -1,10 +1,10 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/context/ThemeContext";
 import EmailSettings from "@/components/ui/email-settings";
+import PasswordSettings from "@/components/ui/password-settings";
 
 export default function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
@@ -15,33 +15,11 @@ export default function SettingsPage() {
         Settings
       </h1>
 
-      {/* Profile Settings */}
+      {/* Email Settings */}
       <EmailSettings />
 
-      {/* Account Settings */}
-      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-gray-900 dark:text-gray-100">
-            Account Settings
-          </CardTitle>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Manage your account credentials and security settings
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Input
-            placeholder="Change Password"
-            type="password"
-            defaultValue="********"
-          />
-          <Input
-            placeholder="Confirm Password"
-            type="password"
-            defaultValue="********"
-          />
-          <Button className="mt-2">Update Password</Button>
-        </CardContent>
-      </Card>
+      {/* Password Settings */}
+      <PasswordSettings />
 
       {/* Theme Preferences */}
       <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
