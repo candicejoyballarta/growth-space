@@ -23,38 +23,42 @@ export default function DeleteUserDialog({
   setUsers: Dispatch<SetStateAction<IUser[]>>;
   setDeleteDialog: Dispatch<SetStateAction<boolean>>;
 }) {
-  const [isPending, startTransition] = useTransition();
-
-  const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
-
   const handleDelete = async () => {
-    if (!selectedUser) return;
+    if (!deletingUser) return;
     try {
+      const res = await fetch(`/api/users/${deletingUser._id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        toast.error("Error deleting user");
+        return;
+      }
+
       setUsers((prev: IUser[]) =>
-        prev.filter((u: IUser) => u._id !== selectedUser._id)
+        prev.filter((u: IUser) => u._id !== deletingUser._id)
       );
 
-      await fetch(`/api/users/${selectedUser._id}`, { method: "DELETE" });
-
       toast.success("User deleted!");
+      setDeleteDialog(false);
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete user");
-    } finally {
-      setDeleteDialog(false);
-      setSelectedUser(null);
     }
   };
 
   return (
-    <Dialog open={deleteDialog} onOpenChange={setDeleteDialog}>
+    <Dialog
+      open={deleteDialog}
+      onOpenChange={(isOpen) => setDeleteDialog(isOpen)}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Confirm Deletion</DialogTitle>
         </DialogHeader>
         <p>
           Are you sure you want to delete{" "}
-          <span className="font-bold">{selectedUser?.name}</span>?
+          <span className="font-bold">{deletingUser?.name}</span>?
         </p>
         <DialogFooter>
           <Button onClick={() => setDeleteDialog(false)} variant="outline">

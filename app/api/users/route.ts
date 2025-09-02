@@ -48,3 +48,44 @@ export async function GET(req: Request) {
     );
   }
 }
+
+// Create user (Admin only)
+export async function POST(req: Request) {
+  try {
+    await connectToDB();
+    const body = await req.json();
+    const { name, email, role = "user", status = "active" } = body;
+
+    if (!name || !email || !role || !status) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "User with this email already exists" },
+        { status: 400 }
+      );
+    }
+
+    const newUser = await User.create({
+      name,
+      email,
+      role,
+      status,
+      password: "changeme123", // placeholder
+    });
+
+    return NextResponse.json(newUser.toObject(), { status: 201 });
+  } catch (err) {
+    console.error("[POST /api/users] Error:", err);
+    return NextResponse.json(
+      { error: "Failed to create user" },
+      { status: 500 }
+    );
+  }
+}

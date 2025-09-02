@@ -4,57 +4,21 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { MoreVertical, Edit, Trash2, Ban } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-
 import toast from "react-hot-toast";
 import { IUser } from "@/models/User";
-import { capitalizeFirstLetter } from "@/lib/helpers";
 import UserTable from "./components/UserTable";
+import UserFormDialog from "./components/UserFormDialog";
+import DeleteUserDialog from "./components/DeleteUserDialog";
 
 export default function ManageUsersPage() {
   const [users, setUsers] = useState<IUser[]>([]);
   const [search, setSearch] = useState("");
 
-  const [openDialog, setOpenDialog] = useState(false);
-  const [deleteDialog, setDeleteDialog] = useState(false);
+  const [openForm, setOpenForm] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
+
   const [editingUser, setEditingUser] = useState<IUser | null>(null);
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
-
-  const [formData, setFormData] = useState<Partial<IUser>>({
-    name: "",
-    email: "",
-    role: "user",
-    status: "active",
-  });
-
-  const filteredUsers = users?.filter(
-    (u) =>
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase())
-  );
 
   // Fetch users
   useEffect(() => {
@@ -62,18 +26,21 @@ export default function ManageUsersPage() {
       try {
         const res = await fetch(`/api/users`);
         const data = await res.json();
-
         if (data?.error) throw new Error(data.error);
-
         setUsers(data.data || []);
       } catch (err) {
         console.error(err);
         toast.error("Failed to fetch users");
       }
     };
-
     fetchUsers();
   }, []);
+
+  const filteredUsers = users?.filter(
+    (u) =>
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="p-6 space-y-6">
@@ -84,7 +51,6 @@ export default function ManageUsersPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Search bar */}
           <div className="flex items-center justify-between">
             <Input
               placeholder="Search users..."
@@ -95,27 +61,40 @@ export default function ManageUsersPage() {
             <Button
               onClick={() => {
                 setEditingUser(null);
-                setFormData({
-                  name: "",
-                  email: "",
-                  role: "user",
-                  status: "active",
-                });
-                setOpenDialog(true);
+                setOpenForm(true);
               }}
             >
               Add User
             </Button>
           </div>
 
-          {/* Users table */}
           <UserTable
             users={filteredUsers}
-            onEdit={() => {}}
-            onDelete={() => {}}
+            onEdit={(user) => {
+              setEditingUser(user);
+              setOpenForm(true);
+            }}
+            onDelete={(user) => {
+              setSelectedUser(user);
+              setOpenDelete(true);
+            }}
           />
         </CardContent>
       </Card>
+
+      <UserFormDialog
+        user={editingUser}
+        openDialog={openForm}
+        setOpenDialog={setOpenForm}
+        setUsers={setUsers}
+      />
+
+      <DeleteUserDialog
+        deleteDialog={openDelete}
+        deletingUser={selectedUser}
+        setUsers={setUsers}
+        setDeleteDialog={setOpenDelete}
+      />
     </div>
   );
 }

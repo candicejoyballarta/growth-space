@@ -49,5 +49,21 @@ const UserSchema = new Schema<IUser>(
   }
 );
 
+UserSchema.pre("save", function (next) {
+  if (!this.lastLogin) {
+    this.status = "inactive";
+  } else {
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    if (this.lastLogin < sixMonthsAgo) {
+      this.status = "inactive";
+    } else {
+      this.status = "active";
+    }
+  }
+  next();
+});
+
 export const User =
   mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

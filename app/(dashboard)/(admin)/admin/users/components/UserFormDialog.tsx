@@ -14,8 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { adminCreateUser, adminUpdateUser } from "@/actions/users";
-import { Dispatch, SetStateAction, useActionState, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
@@ -24,25 +23,24 @@ import { IUser } from "@/models/User";
 export default function UserFormDialog({
   user,
   setUsers,
+  openDialog,
+  setOpenDialog,
 }: {
   user?: IUser | null;
+  openDialog: boolean;
+  setOpenDialog: Dispatch<SetStateAction<boolean>>;
   setUsers: Dispatch<SetStateAction<IUser[]>>;
 }) {
-  const action = user ? adminUpdateUser : adminCreateUser;
-  const [state, formAction] = useActionState(action, {
-    success: false,
-    errors: {},
-    formValues: undefined,
-  });
-
-  const [openDialog, setOpenDialog] = useState(false);
-
-  const [formData, setFormData] = useState<Partial<IUser>>({
+  const initialForm: Partial<IUser> = {
     name: "",
     email: "",
     role: "user",
     status: "active",
-  });
+  };
+
+  const [formData, setFormData] = useState<Partial<IUser>>(initialForm);
+
+  const resetForm = () => setFormData(initialForm);
 
   const handleSave = async () => {
     try {
@@ -55,46 +53,83 @@ export default function UserFormDialog({
           )
         );
 
-        await fetch(`/api/users/${user._id}`, {
+        const res = await fetch(`/api/users/${user._id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
         });
 
-        toast.success("User updated!");
+        const updatedUser = await res.json();
+        setUsers((prev) =>
+          prev.map((u) => (u._id === updatedUser._id ? updatedUser : u))
+        );
+
+        if (!res.ok) {
+          toast.error("Error updating user account. Try again later");
+        } else {
+          toast.success("User updated!");
+        }
       } else {
         const res = await fetch(`/api/users`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
         });
-        const newUser = await res.json();
 
-        setUsers((prev: IUser[]) => [...prev, newUser.data]);
-        toast.success("User added!");
+        const newUser = await res.json();
+        console.log();
+
+        if (!res.ok) {
+          toast.error("Error creating user account. Try again later");
+        } else {
+          setUsers((prev) => [...prev, newUser]);
+          toast.success("User added!");
+        }
       }
 
+      resetForm();
       setOpenDialog(false);
-      setFormData({ name: "", email: "", role: "user", status: "active" });
     } catch (err) {
       console.error(err);
       toast.error("Failed to save user");
+      setOpenDialog(false);
     }
   };
 
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      });
+    } else {
+      resetForm();
+    }
+  }, [user, openDialog]);
+
   return (
-    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+    <Dialog open={openDialog} onOpenChange={(isOpen) => setOpenDialog(isOpen)}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{user ? "Edit User" : "Add User"}</DialogTitle>
         </DialogHeader>
-        <form className="space-y-4" action={formAction}>
+        <form
+          className="space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSave();
+          }}
+        >
           <Input
             placeholder="Name"
+            name="name"
             value={formData.name || ""}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
           <Input
+            name="email"
             placeholder="Email"
             value={formData.email || ""}
             onChange={(e) =>
@@ -102,7 +137,8 @@ export default function UserFormDialog({
             }
           />
           <Select
-            value={formData.role || ""}
+            name="role"
+            value={formData.role || "user"}
             onValueChange={(value) =>
               setFormData({ ...formData, role: value as "user" | "admin" })
             }
@@ -117,7 +153,8 @@ export default function UserFormDialog({
           </Select>
 
           <Select
-            value={formData.status || ""}
+            name="status"
+            value={formData.status || "active"}
             onValueChange={(value) =>
               setFormData({
                 ...formData,
@@ -134,10 +171,17 @@ export default function UserFormDialog({
             </SelectContent>
           </Select>
           <DialogFooter>
-            <Button onClick={() => setOpenDialog(false)} variant="outline">
+            <Button
+              type="button"
+              onClick={() => {
+                resetForm();
+                setOpenDialog(false);
+              }}
+              variant="outline"
+            >
               Cancel
             </Button>
-            <Button onClick={handleSave}>Save</Button>
+            <Button type="submit">Save</Button>
           </DialogFooter>
         </form>
       </DialogContent>

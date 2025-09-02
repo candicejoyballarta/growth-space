@@ -69,14 +69,21 @@ export default function UserTable({
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => onEdit(user)}>
-                      <Edit className="mr-2 h-4 w-4" /> Edit
+                    <DropdownMenuItem asChild>
+                      <button
+                        className="w-full"
+                        onClick={() => setTimeout(() => onEdit(user), 0)}
+                      >
+                        <Edit className="mr-2 h-4 w-4" /> Edit
+                      </button>
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-red-600"
-                      onClick={() => onDelete(user)}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" /> Delete
+                    <DropdownMenuItem className="text-red-600" asChild>
+                      <button
+                        className="w-full"
+                        onClick={() => setTimeout(() => onDelete(user), 0)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" /> Delete
+                      </button>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

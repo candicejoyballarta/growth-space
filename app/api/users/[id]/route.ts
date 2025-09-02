@@ -40,3 +40,50 @@ export async function GET(req: Request, props: Params) {
     );
   }
 }
+
+export async function PUT(req: Request, props: Params) {
+  const params = await props.params;
+  try {
+    await connectToDB();
+    const body = await req.json();
+    const { name, email, role = "user", status = "active" } = body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      params.id,
+      { name, email, role, status },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(updatedUser.toObject(), { status: 200 });
+  } catch (err) {
+    console.error("[PUT /api/users/:id] Error:", err);
+    return NextResponse.json(
+      { error: "Failed to update user" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: Request, props: Params) {
+  const params = await props.params;
+  try {
+    await connectToDB();
+
+    const deletedUser = await User.findByIdAndDelete(params.id).lean();
+    if (!deletedUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(deletedUser, { status: 200 });
+  } catch (err) {
+    console.error("[DELETE /api/users/:id] Error:", err);
+    return NextResponse.json(
+      { error: "Failed to delete user" },
+      { status: 500 }
+    );
+  }
+}

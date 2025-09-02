@@ -10,11 +10,15 @@ import { useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
-  const { status } = useSession();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/dashboard");
+      if (session.user.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     }
   }, [status, router]);
 
