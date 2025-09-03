@@ -25,7 +25,7 @@ export default async function AdminHome() {
 
   return (
     <main className="p-6 space-y-8 bg-gray-50 dark:bg-gray-900 transition-colors min-h-screen">
-      {/* Header */}
+      {/* Greetings */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
           Welcome back, {dashboardData?.user?.name} 👋
