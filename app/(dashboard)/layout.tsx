@@ -3,6 +3,7 @@ import { Toaster } from "react-hot-toast";
 import Sidebar from "@/components/shared/Sidebar";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -12,6 +13,10 @@ export default async function DashboardLayout({
   children,
 }: DashboardLayoutProps) {
   const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect("/login")
+  }
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
