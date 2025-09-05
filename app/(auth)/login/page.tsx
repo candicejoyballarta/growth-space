@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import Loading from "@/components/widgets/Loading";
 
 export default function LoginPage() {
   const { theme } = useTheme();
@@ -45,7 +46,7 @@ export default function LoginPage() {
   }
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <Loading />;
   }
 
   return (

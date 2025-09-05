@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import ColorPicker from "@/components/ui/color-picker";
 import { updateGoal } from "@/actions/goals";
+import Loading from "@/components/widgets/Loading";
 
 export default function EditGoalPage({
   params,
@@ -67,7 +68,7 @@ export default function EditGoalPage({
     }
   }, [state.success, router]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loading />;
 
   return (
     <div className="max-w-2xl mx-auto p-6">
