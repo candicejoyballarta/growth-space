@@ -32,17 +32,22 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
+
     const form = new FormData(e.currentTarget);
     const email = form.get("email") as string;
     const password = form.get("password") as string;
 
-    const res = await login(email, password);
+    try {
+      const res = await login(email, password);
 
-    if (res.error) {
-      setFormError(res.error);
+      if (res.error) {
+        setFormError(res.error);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setFormError("Something went wrong. Please try again.");
     }
-
-    if (res.ok) setLoading(false);
   }
 
   if (loading) {

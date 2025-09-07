@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongoose";
 import { User } from "@/models/User";
+import bcrypt from "bcryptjs";
 
 export async function GET(req: Request) {
   try {
@@ -72,12 +73,14 @@ export async function POST(req: Request) {
       );
     }
 
+    const hashedPassword = await bcrypt.hash("changeme123", 10);
+
     const newUser = await User.create({
       name,
       email,
       role,
       status,
-      password: "changeme123", // placeholder
+      password: hashedPassword, // placeholder password
     });
 
     return NextResponse.json(newUser.toObject(), { status: 201 });
