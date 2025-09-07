@@ -75,10 +75,16 @@ export default function Sidebar() {
       icon: <Newspaper className="h-5 w-5" />,
     },
     {
+      href: "/dashboard/activity",
+      label: "Activity",
+      icon: <BarChart2 className="h-5 w-5" />,
+    },
+    {
       href: "/admin/users",
       label: "Manage Users",
       icon: <Users className="h-5 w-5" />,
     },
+
     // {
     //   href: "/admin/analytics",
     //   label: "Analytics",
