@@ -83,14 +83,20 @@ export default async function AdminHome() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {dashboardData?.topUsers?.map((user: TopUser, i: number) => (
-              <LeaderboardItem
-                key={i}
-                user={user.user}
-                count={user.count}
-                trend={user.trend}
-              />
-            ))}
+            {dashboardData?.topUsers && dashboardData.topUsers.length > 0 ? (
+              dashboardData.topUsers.map((user: TopUser, i: number) => (
+                <LeaderboardItem
+                  key={i}
+                  user={user.user}
+                  count={user.count}
+                  trend={user.trend}
+                />
+              ))
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400 text-sm text-center">
+                No leaderboard data yet
+              </p>
+            )}
           </CardContent>
         </Card>
 
