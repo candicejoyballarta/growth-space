@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongoose";
-import { Post } from "@/models/Post";
+import { Goal } from "@/models/Goal";
 import { User } from "@/models/User";
+import { Post } from "@/models/Post";
+import { mapPost } from "@/lib/helpers";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 interface IAuthor {
   _id: string;
@@ -19,15 +23,24 @@ export async function GET(req: Request, props: Params) {
   try {
     await connectToDB();
 
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const post = await Post.findById(postId)
       .populate("author", "name image")
-      .populate("goal", "_id title");
+      .populate({
+        path: "goalId",
+        select: "title progress color emoji",
+        model: Goal,
+      });
 
     if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    return NextResponse.json(post);
+    return NextResponse.json(mapPost(post, session.user.id));
   } catch (error) {
     console.error("[GET /api/posts/:id] Error:", error);
     return NextResponse.json(
