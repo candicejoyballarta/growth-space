@@ -12,9 +12,6 @@
   "git": {
     "deploymentBranch": "main"
   },
-  "redirects": [
-    { "source": "/(.*)", "destination": "https://growth-space.app/$1", "permanent": true }
-  ],
   "crons": [{
     "path": "/api/cron",
     "schedule": "0 10 * * *"
