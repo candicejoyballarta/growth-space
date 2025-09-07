@@ -9,6 +9,7 @@ declare module "next-auth" {
       image: string;
       bio: string;
       role: string;
+      onboarded: boolean;
     };
   }
 
@@ -19,6 +20,7 @@ declare module "next-auth" {
     image: string;
     bio: string;
     role: string;
+    onboarded: boolean;
   }
 }
 
@@ -26,5 +28,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role: string;
+    onboarded: boolean;
   }
 }

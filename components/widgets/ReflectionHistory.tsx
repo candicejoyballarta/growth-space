@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import dayjs from "dayjs";
 import { Pen } from "lucide-react";
+import Link from "next/link";
 
 interface Reflection {
   id: string;
@@ -34,18 +35,17 @@ export default function ReflectionHistoryCard({ reflections }: Props) {
           <p className="text-sm text-gray-500">No reflections yet.</p>
         ) : (
           latestReflections.map((ref) => (
-            <div
-              key={ref.id}
-              className="p-3 rounded-lg border border-gray-100 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-colors dark:border-gray-700 dark:hover:from-gray-800 dark:hover:to-gray-900"
-            >
-              <p className="text-xs text-gray-400 mb-1 dark:text-gray-500">
-                {dayjs(ref.date).format("MMM D, YYYY")}
-              </p>
-              <div
-                className="text-sm text-gray-700 dark:text-white"
-                dangerouslySetInnerHTML={{ __html: ref.title }}
-              />
-            </div>
+            <Link key={ref.id} href={`/dashboard/posts/${ref.id}`}>
+              <div className="p-3 rounded-lg border border-gray-100 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-colors dark:border-gray-700 dark:hover:from-gray-800 dark:hover:to-gray-900">
+                <p className="text-xs text-gray-400 mb-1 dark:text-gray-500">
+                  {dayjs(ref.date).format("MMM D, YYYY")}
+                </p>
+                <div
+                  className="text-sm text-gray-700 dark:text-white"
+                  dangerouslySetInnerHTML={{ __html: ref.title }}
+                />
+              </div>
+            </Link>
           ))
         )}
       </CardContent>

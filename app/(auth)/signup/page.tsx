@@ -8,10 +8,12 @@ import SignUpForm from "@/components/forms/SignUpForm";
 import { signIn, useSession } from "next-auth/react";
 import { signup } from "@/actions/auth";
 import { useTheme } from "@/context/ThemeContext";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
   const { theme } = useTheme();
-  const { status } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
   const [state, formAction] = useActionState(signup, {
     success: false,
@@ -19,6 +21,16 @@ export default function SignupPage() {
     errors: {},
     formValues: {},
   });
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      if (session?.user?.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
+    }
+  }, [status, session, router]);
 
   useEffect(() => {
     const autoLogin = async () => {

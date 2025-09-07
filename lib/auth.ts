@@ -41,6 +41,7 @@ export const authOptions: NextAuthOptions = {
           image: user.image ?? null,
           bio: user.bio ?? "",
           role: user.role ?? "",
+          onboarded: user.onboardingComplete ?? false,
         };
       },
     }),
@@ -57,6 +58,7 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role ?? "";
         token.bio = user.bio ?? "";
         token.image = user.image ?? null;
+        token.onboarded = user.onboarded ?? false;
       }
 
       // On client-side session.update()
@@ -67,6 +69,7 @@ export const authOptions: NextAuthOptions = {
         token.role = userData.role ?? token.role;
         token.bio = userData.bio ?? token.bio;
         token.image = userData.image ?? token.image;
+        token.onboarded = userData.onboarded ?? token.onboarded;
 
         // Persist email change to DB
         if (token.id && token.email) {
@@ -92,6 +95,7 @@ export const authOptions: NextAuthOptions = {
       session.user.email = (token.email as string) ?? "";
       session.user.role = (token.role as string) ?? "";
       session.user.bio = (token.bio as string) ?? "";
+      session.user.onboarded = (token.onboarded as boolean) ?? false;
 
       return session;
     },

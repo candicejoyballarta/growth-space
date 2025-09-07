@@ -140,6 +140,14 @@ export default function EditPostPage() {
         <Button type="submit" className="w-full">
           Update Post
         </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={() => router.back()}
+        >
+          Cancel
+        </Button>
       </form>
     </div>
   );

@@ -12,11 +12,13 @@ import {
   PlusSquare,
   Menu,
   Megaphone,
+  Newspaper,
+  Users,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
 
 type NavItem = {
   href: string;
@@ -24,11 +26,8 @@ type NavItem = {
   icon: React.ReactNode;
 };
 
-interface SidebarProps {
-  initialSession: Session | null;
-}
-
-export default function Sidebar({ initialSession: session }: SidebarProps) {
+export default function Sidebar() {
+  const { data: session } = useSession();
   const pathname = usePathname() ?? "/";
   const [open, setOpen] = useState(false);
 
@@ -45,7 +44,7 @@ export default function Sidebar({ initialSession: session }: SidebarProps) {
     {
       href: `/dashboard/profile/${session?.user?.id}`,
       label: "Profile",
-      icon: <User className="h-5 w-5" />,
+      icon: <Users className="h-5 w-5" />,
     },
     {
       href: "/dashboard/activity",
@@ -66,9 +65,19 @@ export default function Sidebar({ initialSession: session }: SidebarProps) {
       icon: <Home className="h-5 w-5" />,
     },
     {
-      href: "/admin/users",
-      label: "Users",
+      href: `/dashboard/profile/${session?.user?.id}`,
+      label: "Profile",
       icon: <User className="h-5 w-5" />,
+    },
+    {
+      href: "/dashboard",
+      label: "Timeline",
+      icon: <Newspaper className="h-5 w-5" />,
+    },
+    {
+      href: "/admin/users",
+      label: "Manage Users",
+      icon: <Users className="h-5 w-5" />,
     },
     // {
     //   href: "/admin/analytics",

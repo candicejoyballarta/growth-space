@@ -18,6 +18,7 @@ import { Button } from "./button";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export interface PostCardProps {
   post: {
@@ -47,6 +48,7 @@ export interface PostCardProps {
 }
 
 const PostCard = ({ post, loading, setLoading }: PostCardProps) => {
+  const { data: session } = useSession();
   const router = useRouter();
   const [likes, setLikes] = useState(post.likes || 0);
   const [liked, setLiked] = useState(post.liked || false);
@@ -103,17 +105,21 @@ const PostCard = ({ post, loading, setLoading }: PostCardProps) => {
     <Card className="shadow-sm rounded-lg gap-2 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow bg-white dark:bg-gray-800">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="flex items-center gap-3">
-          <Image
-            width={50}
-            height={50}
-            src={post.user.image}
-            alt={post.user.name}
-            className="h-10 w-10 rounded-full object-cover"
-          />
+          <Link href={`/dashboard/profile/${post?.user?._id}`}>
+            <Image
+              width={50}
+              height={50}
+              src={post.user.image}
+              alt={post.user.name}
+              className="h-10 w-10 rounded-full object-cover"
+            />
+          </Link>
           <div>
-            <p className="font-medium leading-tight text-gray-900 dark:text-gray-100">
-              {post.user.name}
-            </p>
+            <Link href={`/dashboard/profile/${post?.user?._id}`}>
+              <p className="font-medium leading-tight text-gray-900 dark:text-gray-100">
+                {post.user.name}
+              </p>
+            </Link>
             <p className="text-xs text-muted-foreground dark:text-gray-400">
               {formatDate(post.timestamp)}
             </p>
@@ -121,27 +127,29 @@ const PostCard = ({ post, loading, setLoading }: PostCardProps) => {
         </div>
 
         {/* Three dots menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" variant="ghost" className="rounded-full">
-              <MoreVertical className="h-5 w-5 text-gray-700 dark:text-gray-200" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="dark:bg-gray-700 dark:text-gray-100"
-          >
-            <DropdownMenuItem asChild>
-              <Link href={`/dashboard/posts/${post.id}/edit`}>Edit</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-red-600 focus:text-red-600"
-              onClick={() => handleDelete(post.id)}
+        {session?.user?.id === post?.user?._id && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost" className="rounded-full">
+                <MoreVertical className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="dark:bg-gray-700 dark:text-gray-100"
             >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/posts/${post.id}/edit`}>Edit</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-red-600 focus:text-red-600"
+                onClick={() => handleDelete(post.id)}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </CardHeader>
 
       {/* Content */}
