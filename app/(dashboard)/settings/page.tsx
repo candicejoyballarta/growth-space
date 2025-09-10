@@ -2,12 +2,12 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "next-themes";
 import EmailSettings from "@/components/ui/email-settings";
 import PasswordSettings from "@/components/ui/password-settings";
 
 export default function SettingsPage() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 py-8">
@@ -36,7 +36,7 @@ export default function SettingsPage() {
                   ? "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
                   : "bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-400"
               } hover:bg-gray-200 dark:hover:bg-gray-500 transition`}
-              onClick={() => theme !== "light" && toggleTheme()}
+              onClick={() => setTheme("light")}
             >
               Light
             </Button>
@@ -46,7 +46,7 @@ export default function SettingsPage() {
                   ? "bg-gray-800 text-white dark:bg-gray-900 dark:text-white"
                   : "bg-gray-700 text-gray-300 dark:bg-gray-700 dark:text-gray-300"
               } hover:bg-gray-900 dark:hover:bg-gray-800 transition`}
-              onClick={() => theme !== "dark" && toggleTheme()}
+              onClick={() => setTheme("dark")}
             >
               Dark
             </Button>

@@ -6,9 +6,30 @@ import toast from "react-hot-toast";
 import { useGetUser } from "@/hooks/useGetUser";
 import { useSession } from "next-auth/react";
 
+const EmailSettingsSkeleton = () => {
+  return (
+    <div className="p-6 space-y-4 bg-white dark:bg-gray-800 rounded-xl shadow-md animate-pulse">
+      <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+        Email Settings
+      </h2>
+
+      <div className="flex flex-col space-y-2">
+        <div className="h-4 w-24 bg-gray-300 dark:bg-gray-700 rounded" />
+        <div className="h-10 w-full bg-gray-300 dark:bg-gray-700 rounded" />
+      </div>
+
+      <div className="h-10 w-32 bg-gray-300 dark:bg-gray-700 rounded" />
+    </div>
+  );
+};
+
 export default function EmailSettings() {
   const { data: session, status, update } = useSession();
-  const { profile, refresh } = useGetUser(session?.user?.email);
+  const {
+    profile,
+    refresh,
+    loading: profileLoading,
+  } = useGetUser(session?.user?.email);
   const [newEmail, setNewEmail] = useState(session?.user?.email || "");
   const [loading, setLoading] = useState(false);
 
@@ -58,6 +79,10 @@ export default function EmailSettings() {
     }
   }, [session?.user?.email]);
 
+  if (profileLoading || status === "loading") {
+    return <EmailSettingsSkeleton />;
+  }
+
   return (
     <div className="p-6 space-y-4 bg-white dark:bg-gray-800 rounded-xl shadow-md">
       <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
@@ -76,8 +101,8 @@ export default function EmailSettings() {
         />
       </div>
 
-      <Button onClick={handleEmailChange} disabled={status === "loading"}>
-        {loading ? "Updating..." : "Change Email"}
+      <Button onClick={handleEmailChange} disabled={profileLoading}>
+        {profileLoading ? "Updating..." : "Change Email"}
       </Button>
 
       {!profile?.emailVerified && (

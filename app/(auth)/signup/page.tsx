@@ -7,7 +7,7 @@ import { useActionState, useEffect } from "react";
 import SignUpForm from "@/components/forms/SignUpForm";
 import { signIn, useSession } from "next-auth/react";
 import { signup } from "@/actions/auth";
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {

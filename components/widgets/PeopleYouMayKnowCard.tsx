@@ -7,12 +7,30 @@ import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import Link from "next/link";
 
+// Skeleton Loader Component
+const PeopleYouMayKnowSkeleton = () => {
+  return (
+    <div className="animate-pulse space-y-3">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700" />
+            <div className="h-4 w-24 bg-gray-300 dark:bg-gray-700 rounded" />
+          </div>
+          <div className="h-6 w-16 bg-gray-300 dark:bg-gray-700 rounded" />
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const PeopleYouMayKnowCard = () => {
   const { user } = useAuth();
   const loggedInUserId = user?.id;
   const [suggestedConnections, setPeople] = useState<
     { _id: string; name: string; image: string }[]
   >([]);
+  const [loading, setLoading] = useState(true);
 
   const handleFollowUser = async (followeeId: string) => {
     if (!loggedInUserId) return;
@@ -40,6 +58,7 @@ const PeopleYouMayKnowCard = () => {
 
     const fetchPeople = async () => {
       try {
+        setLoading(true);
         const res = await fetch(
           `/api/users/suggestions?userId=${loggedInUserId}`
         );
@@ -47,6 +66,8 @@ const PeopleYouMayKnowCard = () => {
         setPeople(data);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -59,7 +80,9 @@ const PeopleYouMayKnowCard = () => {
         People You May Know
       </h3>
       <div className="space-y-3">
-        {suggestedConnections.length > 0 ? (
+        {loading ? (
+          <PeopleYouMayKnowSkeleton />
+        ) : suggestedConnections.length > 0 ? (
           suggestedConnections.map((person) => (
             <div
               key={person._id}
